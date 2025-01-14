@@ -1,27 +1,24 @@
 using System;
+using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
-using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 
-public class ProductsController(IGenericRepository<Product> repo) : ControllerBase
+public class ProductsController(IGenericRepository<Product> repo) : BaseApiController
 {
 
-    [HttpGet] //een lijst van alle producten ophalen
-    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? merk, string? type, string? sort)
+    [HttpGet] //een lijst van alle producten ophalen die binnen de ingegeven pagination vallen
+    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery]ProductSpecParams specParams)
     {
-        var spec = new ProductSpecification(merk, type, sort);
-
-        var products = await repo.ListAsync(spec);
+        var spec = new ProductSpecification(specParams);
         
-        return Ok(products);
+        return await CreatepagedResult(repo, spec, specParams.PageIndex, specParams.PageSize);
     }
 
     [HttpGet("{id:int}")] //specifiek product zoeken op basis van id
@@ -76,6 +73,7 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
         return BadRequest("Het product kon niet verwijderd worden.");
     }
 
+    //filteren op de ingegeven merken
     [HttpGet("merken")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetMerken()
     {
@@ -83,6 +81,7 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
         return Ok(await repo.ListAsync(spec));
     }
 
+    //filteren op de ingegeven types
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
     {
@@ -90,6 +89,8 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
 
         return Ok(await repo.ListAsync(spec));
     }
+
+    //filteren op de ingegeven prijzen
     [HttpGet("prijzen")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetPrijzen()
     {
@@ -98,7 +99,7 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
         return Ok(await repo.ListAsync(spec));
     }
 
-    private bool ProductExists(int id) //controleren of een product voor de meegegeven id bestaat
+    private bool ProductExists(int id) //controleren of een product voor de meegegeven id bestaat in de database
     {
         return repo.Exists(id);
     }
