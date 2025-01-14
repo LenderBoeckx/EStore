@@ -76,14 +76,26 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
         return BadRequest("Het product kon niet verwijderd worden.");
     }
 
-    [HttpGet("brands")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetMerken(){
-        return Ok();
+    [HttpGet("merken")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetMerken()
+    {
+        var spec = new MerkenLijstSpecification();
+        return Ok(await repo.ListAsync(spec));
     }
 
     [HttpGet("types")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetTypes(){
-        return Ok();
+    public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+    {
+        var spec = new TypeLijstSpecification();
+
+        return Ok(await repo.ListAsync(spec));
+    }
+    [HttpGet("prijzen")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetPrijzen()
+    {
+        var spec = new PrijzenLijstSpecification();
+
+        return Ok(await repo.ListAsync(spec));
     }
 
     private bool ProductExists(int id) //controleren of een product voor de meegegeven id bestaat
