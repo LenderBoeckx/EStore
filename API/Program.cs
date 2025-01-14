@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<StoreContext>(opt => {
 
 //een service voorzien voor de meegegeven repositories zolang het http request geldt
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 var app = builder.Build();
 
