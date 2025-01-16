@@ -22,10 +22,25 @@ $customTheme: mat.define-theme();
     color: #7d00fa;
 }
 
+//hoogte van de buttons gelijkstellen aan die van input velden die naast elkaar staan
 button.match-input-height {
     height: var(--mat-form-field-container-height) !important;
 }
 
+//verticale lijn die verschijnt in hoeveelheid input veld bij details product verwijderen
 .mdc-notched-outline__notch {
     border-right-style: none !important;
+}
+
+//custom css voor aanpassingen aan de snackbar bij errors of success
+.mat-mdc-snack-bar-container.snack-error {
+    --mdc-snackbar-container-color: red;
+    --mat-snack-bar-button-color: #fff;
+    --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-success {
+    --mdc-snackbar-container-color: green;
+    --mat-snack-bar-button-color: #fff;
+    --mdc-snackbar-supporting-text-color: #fff;
 }

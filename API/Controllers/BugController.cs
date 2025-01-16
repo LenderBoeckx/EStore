@@ -18,7 +18,7 @@ public class BugController : BaseApiController
         return BadRequest("Geen geldige aanvraag.");
     }
 
-    [HttpGet("notFound")]
+    [HttpGet("notfound")]
     public IActionResult GetNotFound() 
     {
         return NotFound();

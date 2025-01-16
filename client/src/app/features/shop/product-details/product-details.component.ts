@@ -20,8 +20,7 @@ import { Location } from '@angular/common';
     MatFormField,
     MatInputModule,
     MatLabel,
-    MatDivider,
-    RouterLink
+    MatDivider
   ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.scss'
@@ -49,6 +48,6 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   goBack(){
-    this.location.back()
+    this.location.back();
   }
 }
