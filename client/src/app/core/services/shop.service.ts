@@ -37,6 +37,11 @@ export class ShopService {
     return this.http.get<Pagination<Product>>(this.baseUrl + 'products', {params});
   }
 
+  //details bekijken van een gekozen product
+  getProduct(id: number){
+    return this.http.get<Product>(this.baseUrl + 'products/' + id);
+  }
+
   //merken ophalen uit de database
   getMerken(){
     if(this.merken.length > 0) return;

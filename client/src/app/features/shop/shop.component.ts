@@ -57,12 +57,14 @@ export class ShopComponent implements OnInit {
     this.getProducts();
   }
 
+  //producten ophalen uit de database voor de gewenste pagina en aantal items per pagina
   handlePageEvent(event: PageEvent){
     this.shopParams.pageNumber = event.pageIndex + 1;
     this.shopParams.pageSize = event.pageSize;
     this.getProducts();
   }
 
+  //producten ophalen wanneer de sorteringskeuze gewijzigd is
   onSortChange(event: MatSelectionListChange){
     const selectedOption = event.options[0];
     if (selectedOption) {
@@ -72,11 +74,13 @@ export class ShopComponent implements OnInit {
     }
   }
 
+  //producten ophalen wanneer de zoekterm gewijzigd is
   onSearchChange(){
     this.shopParams.pageNumber = 1;
     this.getProducts();
   }
   
+  //producten ophalen vanuit de database
   getProducts() {
     this.shopService.getProducts(this.shopParams).subscribe({
       next: response => this.products = response,
