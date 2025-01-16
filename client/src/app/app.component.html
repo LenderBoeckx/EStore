@@ -1,10 +1,5 @@
 <app-header></app-header>
 
-<div class="ml-3 mt-6">
-    <h2 class="text-3xl font-bold underline">Welkom bij Estore.</h2>
-    <ul>
-        @for (product of products; track product.id){
-            <li>{{product.naam}}</li>
-        }
-    </ul>
+<div class="ml-3 mt-6 mr-3">
+    <app-shop></app-shop>
 </div>

@@ -1,0 +1,29 @@
+<div>
+    <h3 class="text-3xl text-center pt-6 mb-3">Filters</h3>
+    <mat-divider></mat-divider>
+    <div class="flex p-4">
+        <div class="w-1/2">
+            <h4 class="font-semibold text-xl text-primary">Merken</h4>
+            <mat-selection-list [(ngModel)]="selectedMerken" [multiple]="true">
+                @for (merk of shopService.merken; track $index) {
+                    <mat-list-option [value]="merk">{{merk}}</mat-list-option>
+                }
+            </mat-selection-list>
+        </div>
+
+        <div class="w-1/2">
+            <h4 class="font-semibold text-xl text-primary">Merken</h4>
+            <mat-selection-list [(ngModel)]="selectedTypes" [multiple]="true">
+                @for (type of shopService.types; track $index) {
+                    <mat-list-option [value]="type">{{type}}</mat-list-option>
+                }
+            </mat-selection-list>
+        </div>
+    </div>
+    <div class="flex flex-col gap-3">
+        <div class="flex justify-between p-4">
+            <button mat-flat-button (click)="removeFilters()">Filters verwijderen</button>
+            <button mat-flat-button (click)="applyFilters()">Filters toepassen</button>
+        </div>       
+    </div>
+</div>

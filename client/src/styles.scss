@@ -17,3 +17,11 @@ $customTheme: mat.define-theme();
         @apply rounded-md
     }
 }
+
+.text-primary {
+    color: #7d00fa;
+}
+
+button.match-input-height {
+    height: var(--mat-form-field-container-height) !important;
+}
