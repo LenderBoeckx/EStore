@@ -2,8 +2,11 @@ using System.ComponentModel;
 using API.Middleware;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Services;
+using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,17 @@ builder.Services.AddDbContext<StoreContext>(opt => {
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddCors();
+
+//een service voorzien voor de connectie met Redis tijdens de volledige levensduur van het project
+builder.Services.AddSingleton<IConnectionMultiplexer>(config => {
+    var connectionstring = builder.Configuration.GetConnectionString("Redis");
+    if(connectionstring == null) throw new Exception("Kan de Redis connectionString niet vinden.");
+    var configuration = ConfigurationOptions.Parse(connectionstring, true);
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
+//een service voorzien om data weg te schrijven of op te halen vanuit de Redis database tijdens de volledige levensduur van het project
+builder.Services.AddSingleton<ICartService, CartService>();
 
 var app = builder.Build();
 
