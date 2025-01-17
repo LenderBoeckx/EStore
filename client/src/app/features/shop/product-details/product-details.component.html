@@ -14,17 +14,18 @@
                 </div>
                 <div class="text-2xl font-semibold text-gray-900">
                     <h1>{{product.naam}}</h1>
+                    <p>U heeft {{quantityInCart}} stuk(s) van dit product in uw winkelmandje</p>
                     <div class="mt-4 items-center gap-4 flex">
                         <p class="text-3xl font-extrabold text-gray-900">{{product.prijs | currency}}</p>
                     </div>
                     <div class="flex gap-4 mt-6">
-                        <button class="match-input-height" mat-flat-button>
+                        <button [disabled]="quantity === quantityInCart" (click)="updateCart()" class="match-input-height" mat-flat-button>
                             <mat-icon>shopping_cart</mat-icon>
-                            Toevoegen aan winkelmandje
+                            {{getButtonText()}}
                         </button>
                         <mat-form-field appearance="outline" class="flex">
                             <mat-label>Hoeveelheid</mat-label>
-                            <input matInput type="number">
+                            <input matInput type="number" min="0" [(ngModel)]="quantity">
                         </mat-form-field>
                     </div>
                     <mat-divider></mat-divider>

@@ -1,0 +1,44 @@
+<div class="mx-auto max-w-4xl flex-1 space-y-6 w-full">
+    <div class="space-y-4 rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+        <p class="text-xl font-semibold">Overzicht winkelmandje</p>
+        <div class="space-y-4">
+            <div class="space-y-2">
+                <dl class="flex items-center justify-between gap-4">
+                    <dt class="font-medium text-gray-500">Subtotaal</dt>
+                    <dd class="font-medium text-gray-900">{{cartService.totals()?.subtotaal | currency}}</dd>
+                </dl>
+                <dl class="flex items-center justify-between gap-4">
+                    <dt class="font-medium text-gray-500">Korting</dt>
+                    <dd class="font-medium text-green-700">- {{cartService.totals()?.korting | currency}}</dd>
+                </dl>
+                <dl class="flex items-center justify-between gap-4">
+                    <dt class="font-medium text-gray-500">Verzendkosten</dt>
+                    <dd class="font-medium text-gray-900">{{cartService.totals()?.verzending | currency}}</dd>
+                </dl>
+            </div>
+
+            <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2">
+                <dt class="font-medium text-gray-500">Totaal</dt>
+                <dd class="font-medium text-gray-900">{{cartService.totals()?.totaal | currency}}</dd>
+            </dl>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <button routerLink="/checkout" mat-flat-button>Bestellen</button>
+            <button routerLink="/shop" mat-button>Verder winkelent</button>
+        </div>
+    </div>
+
+    <div class="space-y-4 rounded-lg border border-gray-200 bg-white shadow-sm">
+        <form class="space-y-2 flex flex-col p-2">
+            <label class="mb-2 block text-sm font-medium">
+                Heeft u een kortingscode?
+            </label>
+            <mat-form-field appearance="outline">
+                <mat-label>Kortingscode</mat-label>
+                <input type="text" matInput>
+            </mat-form-field>
+            <button mat-flat-button>Code inwisselen</button>
+        </form>
+    </div>
+</div>
