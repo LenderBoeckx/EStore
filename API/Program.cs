@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using API.Middleware;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
@@ -35,15 +36,21 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config => {
 //een service voorzien om data weg te schrijven of op te halen vanuit de Redis database tijdens de volledige levensduur van het project
 builder.Services.AddSingleton<ICartService, CartService>();
 
+//services voorzien voor .NET Identity
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<StoreContext>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<ExceptionMiddleware>();
 
 //enkel request van dit adres toestaan in het project, vermijden van request gestuurd door andere websites
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200","https://localhost:4200"));
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200","https://localhost:4200"));
 
 app.MapControllers();
+app.MapGroup("api").MapIdentityApi<AppUser>(); //endpoint api
 
 try
 {

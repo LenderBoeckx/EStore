@@ -1,5 +1,7 @@
 using System;
+using System.Security.Claims;
 using API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -34,5 +36,15 @@ public class BugController : BaseApiController
     public IActionResult GetValidationError(CreateProductDTO product) 
     {
         return Ok();
+    }
+
+    [Authorize]
+    [HttpGet("secret")]
+    public IActionResult GetSecret()
+    {
+        var name = User.FindFirst(ClaimTypes.Name)?.Value;
+        var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return Ok("Hallo " + name + " met id: " + id);
     }
 }
