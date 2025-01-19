@@ -7,9 +7,9 @@ export interface User {
 
 export interface Address {
     straat: string;
-    toevoeging: string;
+    toevoeging?: string;
     plaats: string;
-    provincie: string;
+    provincie?: string;
     land: string;
     postcode: string;
 }

@@ -10,8 +10,7 @@ public class AddressDto
     public string? Toevoeging {get; set;}
     [Required]
     public string Plaats {get; set;} = string.Empty;
-    [Required]
-    public string Provincie {get; set;} = string.Empty;
+    public string? Provincie {get; set;}
     [Required]
     public string Postcode {get; set;} = string.Empty;
     [Required]

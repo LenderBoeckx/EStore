@@ -7,8 +7,10 @@ namespace Infrastructure.Data;
 
 public class StoreContextSeed
 {
+    //dummy data toevoegen aan de database bij opstarten van de applicatie
     public static async Task SeedAsync(StoreContext context)
     {
+        //als er geen data aanwezig is in de producten entiteit dan wordt deze toegevoegd vanuit het json bestand
         if(!context.Products.Any())
         {
             var productsData = await File.ReadAllTextAsync("../Infrastructure/Data/SeedData/products.json");
@@ -19,6 +21,22 @@ public class StoreContextSeed
 
             context.Products.AddRange(products);
 
+            //data opslaan in de database
+            await context.SaveChangesAsync();
+        }
+
+        //als er geen data aanwezig is in de deliverymethods entiteit dan wordt deze toegevoegd vanuit het json bestand
+        if(!context.DeliveryMethods.Any())
+        {
+            var deliveryData = await File.ReadAllTextAsync("../Infrastructure/Data/SeedData/delivery.json");
+
+            var methods = JsonSerializer.Deserialize<List<DeliveryMethod>>(deliveryData);
+
+            if(methods == null) return;
+
+            context.DeliveryMethods.AddRange(methods);
+
+            //data opslaan in de database
             await context.SaveChangesAsync();
         }
     }

@@ -17,6 +17,7 @@ export class ShopService {
   getProducts(shopParams: ShopParams){
     let params = new HttpParams();
 
+
     if(shopParams.merken.length > 0) {
       params = params.append('merken', shopParams.merken.join(','));
     }

@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Address, User } from '../../shared/models/user';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,14 @@ export class AccountService {
 
   //request naar back-end address endpoint sturen om het adres van deze bepaalde user te wijzigen
   updateAddress(address: Address){
-    return this.http.post(this.baseUrl + 'account/address', address);
+    return this.http.post(this.baseUrl + 'account/address', address).pipe(
+      tap(() => {
+        this.currentUser.update(user => {
+          if(user) user.address = address;
+          return user;
+        })
+      })
+    );
   }
 
   //request naar auth-status back-end endpoint sturen om te kijken of een user authenticated is, geeft een true of false terug
