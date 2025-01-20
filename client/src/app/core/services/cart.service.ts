@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Cart, CartItem } from '../../shared/models/cart';
 import { Product } from '../../shared/models/product';
 import { map } from 'rxjs';
+import { DeliveryMethod } from '../../shared/models/deliveryMethod';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class CartService {
 
   //Angular signals gebruiken om een winkelwagen op te slaan
   cart = signal<Cart | null>(null);
+  selectedDelivery = signal<DeliveryMethod | null>(null);
 
   //Angular computed signal gebruiken om het aantal producten weer te geven bij het winkelwagen icoon
   itemCount = computed(() => {
@@ -23,9 +25,10 @@ export class CartService {
   //Angular computed signal gebruiken om de verschillende tussenuitkomsten te berekenen en de totale kostprijs te berekenen
   totals = computed(() => {
     const cart = this.cart();
+    const delivery = this.selectedDelivery();
     if(!cart) return null;
     const subtotaal = cart.items.reduce((som, item) => som + (item.prijs * item.hoeveelheid), 0);
-    const verzending = 0;
+    const verzending = delivery ? delivery.prijs : 0;
     const korting = 0;
     return {
       subtotaal,

@@ -1,0 +1,30 @@
+<div class="mt-4 w-full">
+    <h4 class="text-lg font-semibold">Betalings en leveringsinformatie.</h4>
+    <dl>
+        <dt class="font-medium">Leveringsadres</dt>
+        <dd class="mt-1 text-gray-500">{{confirmationToken?.shipping | address}}</dd>
+        <dt class="font-medium">Betalingswijze</dt>
+        <dd class="mt-1 text-gray-500">{{confirmationToken?.payment_method_preview | payment}}</dd>
+    </dl>
+</div>
+
+<div class="mt-6 mx-auto">
+    <div class="border-b border-gray-200">
+        <table class="w-full text-center">
+            <tbody class="divide-y divide-gray-200">
+                @for (item of cartService.cart()?.items; track item.productId) {
+                    <tr>
+                        <td class="py-4">
+                            <div class="flex items-center gap-4">
+                                <img src="{{item.fotoUrl}}" alt="foto van {{item.productNaam}}" class="w-10 h-10">
+                                <span>{{item.productNaam}}</span>
+                            </div>
+                        </td>
+                        <td class="p-4">x {{item.hoeveelheid}}</td>
+                        <td class="p-4 text-right">{{item.prijs | currency}}</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
