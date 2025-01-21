@@ -20,4 +20,10 @@ public class OrderSpecification : BaseSpecification<Order>
         AddInclude("BestellingsItems");
         AddInclude("LeveringsMethode");
     }
+
+    public OrderSpecification(string betalingsIntentId, bool isBetalingsIntent): base(x => x.BetalingsIntentId == betalingsIntentId)
+    {
+        AddInclude("BestellingsItems");
+        AddInclude("LeveringsMethode");
+    }
 }

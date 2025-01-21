@@ -1,13 +1,17 @@
 using System;
 using Core.Entities;
+using Core.Entities.OrderAggregate;
 using Core.Interfaces;
+using Core.Specifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace API.Controllers;
 
-public class PaymentController(IPaymentService paymentService, IUnitOfWork uow) : BaseApiController
+public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, ILogger<PaymentController> logger) : BaseApiController
 {
+    private readonly string _whSecret = "";
     [Authorize]
     [HttpPost("{cartId}")]
     //endpoint creëren om een payment intent op te stellen
@@ -25,5 +29,72 @@ public class PaymentController(IPaymentService paymentService, IUnitOfWork uow) 
     public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods()
     {
         return Ok(await uow.Repository<DeliveryMethod>().ListAllAsync());
+    }
+
+    [HttpPost("webhook")]
+    public async Task<IActionResult> StripeWebhook()
+    {
+        var json = await new StreamReader(Request.Body).ReadToEndAsync();
+
+        try
+        {
+            var stripeEvent = ConstructStripeEvent(json);
+
+            if(stripeEvent.Data.Object is not PaymentIntent intent)
+            {
+                return BadRequest("Onvolledige event data.");
+            }
+
+            await HandlePaymentIntentSucceeded(intent);
+
+            return Ok();
+        }
+        catch(StripeException ex)
+        {
+            logger.LogError(ex, "Stripe webhook fout.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "a webhook error occurred.");
+        }
+        catch(Exception ex)
+        {
+            logger.LogError(ex, "Er is een onverwachte fout opgetreden.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+        }
+    }
+
+    private async Task HandlePaymentIntentSucceeded(PaymentIntent intent)
+    {
+        if(intent.Status == "succeeded")
+        {
+            var spec = new OrderSpecification(intent.Id, true);
+
+            //order ophalen uit de database aan de hand van het meegegeven id
+            var order = await uow.Repository<Core.Entities.OrderAggregate.Order>().GetEntityWithSpec(spec) ?? throw new Exception("Bestelling niet gevonden.");
+
+            //controleren of het bedrag van het afgewerkt order hetzelfde is als het bedrag dat Stripe terug geeft
+            if((long)order.GetTotaal() * 100 != intent.Amount)
+            {
+                order.BestellingsStatus = OrderStatus.PaymentMismatch;
+            }
+            else
+            {
+                order.BestellingsStatus = OrderStatus.PaymentReceived;
+            }
+
+            //wijzigingen opslaan in de database
+            await uow.Complete();
+        }
+    }
+
+    private Event ConstructStripeEvent(string json)
+    {
+        try
+        {
+            return EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], _whSecret);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Stripe event aanmaken is niet gelukt.");
+            throw new StripeException("foutieve signature.");
+        }
     }
 }
