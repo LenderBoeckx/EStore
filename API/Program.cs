@@ -23,6 +23,10 @@ builder.Services.AddDbContext<StoreContext>(opt => {
 //een service voorzien voor de meegegeven repositories zolang het http request geldt
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+//een service voorzien voor de unit of work repositories
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddCors();
 
 //een service voorzien voor de connectie met Redis tijdens de volledige levensduur van het project

@@ -10,7 +10,7 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class ProductsController(IGenericRepository<Product> repo) : BaseApiController
+public class ProductsController(IUnitOfWork uow) : BaseApiController
 {
 
     [HttpGet] //een lijst van alle producten ophalen die binnen de ingegeven pagination vallen
@@ -18,13 +18,13 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     {
         var spec = new ProductSpecification(specParams);
         
-        return await CreatepagedResult(repo, spec, specParams.PageIndex, specParams.PageSize);
+        return await CreatepagedResult(uow.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
     }
 
     [HttpGet("{id:int}")] //specifiek product zoeken op basis van id
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
-        var product = await repo.GetByIdAsync(id);
+        var product = await uow.Repository<Product>().GetByIdAsync(id);
 
         if(product == null) return NotFound();
 
@@ -33,9 +33,9 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
 
     [HttpPost] //een product aanmaken in de database
     public async Task<ActionResult<Product>> CreateProduct(Product product){
-        repo.Add(product);
+        uow.Repository<Product>().Add(product);
         
-       if(await repo.SaveAllAsync())
+       if(await uow.Complete())
        {
         return CreatedAtAction("GetProduct", new {id = product.Id}, product);
        } 
@@ -48,9 +48,9 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     {
         if(product.Id != id || !ProductExists(id)) return BadRequest("Dit product kan niet aangepast worden.");
 
-        repo.Update(product);
+        uow.Repository<Product>().Update(product);
 
-        if(await repo.SaveAllAsync()){
+        if(await uow.Complete()){
             return NoContent();
         }
 
@@ -60,13 +60,13 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     [HttpDelete("{id:int}")] //een product uit de database verwijderen
     public async Task<ActionResult> DeleteProduct(int id)
     {
-        var product = await repo.GetByIdAsync(id);
+        var product = await uow.Repository<Product>().GetByIdAsync(id);
 
         if(product == null) return NotFound();
 
-        repo.Remove(product);
+        uow.Repository<Product>().Remove(product);
 
-        if(await repo.SaveAllAsync()){
+        if(await uow.Complete()){
             return NoContent();
         }
 
@@ -78,7 +78,7 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     public async Task<ActionResult<IReadOnlyList<string>>> GetMerken()
     {
         var spec = new MerkenLijstSpecification();
-        return Ok(await repo.ListAsync(spec));
+        return Ok(await uow.Repository<Product>().ListAsync(spec));
     }
 
     //filteren op de ingegeven types
@@ -87,7 +87,7 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     {
         var spec = new TypeLijstSpecification();
 
-        return Ok(await repo.ListAsync(spec));
+        return Ok(await uow.Repository<Product>().ListAsync(spec));
     }
 
     //filteren op de ingegeven prijzen
@@ -96,12 +96,12 @@ public class ProductsController(IGenericRepository<Product> repo) : BaseApiContr
     {
         var spec = new PrijzenLijstSpecification();
 
-        return Ok(await repo.ListAsync(spec));
+        return Ok(await uow.Repository<Product>().ListAsync(spec));
     }
 
     private bool ProductExists(int id) //controleren of een product voor de meegegeven id bestaat in de database
     {
-        return repo.Exists(id);
+        return uow.Repository<Product>().Exists(id);
     }
 
 }

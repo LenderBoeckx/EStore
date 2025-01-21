@@ -6,7 +6,7 @@ using Stripe;
 
 namespace Infrastructure.Services;
 
-public class PaymentService(IConfiguration config, ICartService cartService, IGenericRepository<Core.Entities.Product> productRepo, IGenericRepository<DeliveryMethod> dmRepo) : IPaymentService
+public class PaymentService(IConfiguration config, ICartService cartService, IUnitOfWork uow) : IPaymentService
 {
     //functie om een payment intent aan te maken
     //valideren dat de inhoud van het winkelwagentje overeenstemt met de gegevens in de database (gebruikermanipulatie: eventueel prijs aangepast?)
@@ -26,7 +26,7 @@ public class PaymentService(IConfiguration config, ICartService cartService, IGe
         if(cart.DeliveryMethodId.HasValue)
         {
             //leveringsmethode ophalen aan de hand van het leveringsmethode id van het cart object
-            var deliveryMethod = await dmRepo.GetByIdAsync((int)cart.DeliveryMethodId);
+            var deliveryMethod = await uow.Repository<DeliveryMethod>().GetByIdAsync((int)cart.DeliveryMethodId);
             
             if(deliveryMethod == null) return null;
 
@@ -35,7 +35,7 @@ public class PaymentService(IConfiguration config, ICartService cartService, IGe
 
         //voor elk item in het winkelwagentje controleren of de prijs overeenkomt met de prijs van het product in de database
         foreach(var item in cart.Items){
-            var productItem = await productRepo.GetByIdAsync(item.ProductId);
+            var productItem = await uow.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId);
 
             if(productItem == null) return null;
 
