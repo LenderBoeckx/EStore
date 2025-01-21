@@ -143,9 +143,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           //order service de opdracht geven om het order aan te maken in de database
           const orderResult = await firstValueFrom(this.orderService.createOrder(order));
           console.log('orderResult');
-          console.log(orderResult);
 
           if(orderResult) {
+            //orderComplete variabele in orderService op true zetten zodat de gebruiker naar de succes pagina kan doorverwezen worden
+            this.orderService.orderComplete = true;
             //winkelwagentje verwijderen en geselecteerde leveringsmethode op null zetten + gebruiker navigeren naar succes component
           this.cartService.deleteCart();
           this.cartService.selectedDelivery.set(null);

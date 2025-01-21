@@ -1,17 +1,20 @@
 using System;
+using API.Extensions;
+using API.SignalR;
 using Core.Entities;
 using Core.Entities.OrderAggregate;
 using Core.Interfaces;
 using Core.Specifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Stripe;
 
 namespace API.Controllers;
 
-public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, ILogger<PaymentController> logger) : BaseApiController
+public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, ILogger<PaymentController> logger, IConfiguration config, IHubContext<NotificationHub> hubContext) : BaseApiController
 {
-    private readonly string _whSecret = "";
+    private readonly string _whSecret = config["StripeSettings:WhSecret"]!;
     [Authorize]
     [HttpPost("{cartId}")]
     //endpoint creëren om een payment intent op te stellen
@@ -82,6 +85,13 @@ public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, 
 
             //wijzigingen opslaan in de database
             await uow.Complete();
+
+            var connectionId = NotificationHub.GetConnectionIdByEmail(order.KoperEmail);
+
+            if(!string.IsNullOrEmpty(connectionId))
+            {
+                await hubContext.Clients.Client(connectionId).SendAsync("OrderCompleteNotification", order.ToDto());
+            }
         }
     }
 

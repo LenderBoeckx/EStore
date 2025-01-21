@@ -3,6 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Address, User } from '../../shared/models/user';
 import { map, tap } from 'rxjs';
+import { SignalrService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +11,17 @@ import { map, tap } from 'rxjs';
 export class AccountService {
   baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
+  private signalRService = inject(SignalrService);
   currentUser = signal<User | null>(null);
 
   //http request naar back-end login endpoint sturen om een user in te loggen
+  //request naar signal R sturen om de hubconnectie aan te maken
   login(values: any){
     let params = new HttpParams();
     params = params.append('useCookies', true);
-    return this.http.post<User>(this.baseUrl + 'login', values, {params});
+    return this.http.post<User>(this.baseUrl + 'login', values, {params}).pipe(
+      tap(() => this.signalRService.createHubConnection())
+    );
   }
 
   //http request naar back-end register endpoint sturen om een user te registreren
@@ -37,8 +42,11 @@ export class AccountService {
   }
 
   //request naar back-end logout endpoint sturen om deze bepaalde user uit te loggen
+  //request naar signalR service sturen om de hubconnectie te sluiten
   logout(){
-    return this.http.post(this.baseUrl + 'account/logout', {});
+    return this.http.post(this.baseUrl + 'account/logout', {}).pipe(
+      tap(() => this.signalRService.stopHubConnection())
+    );
   }
 
   //request naar back-end address endpoint sturen om het adres van deze bepaalde user te wijzigen

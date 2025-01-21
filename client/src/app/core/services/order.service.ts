@@ -9,6 +9,7 @@ import { Order, OrderToCreate } from '../../shared/models/order';
 export class OrderService {
   baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
+  orderComplete = false;
 
   //een order aanmaken in de database
   createOrder(orderToCreate: OrderToCreate) {
