@@ -1,5 +1,5 @@
 <div class="mx-auto text-2xl">Geen van deze artikelen zijn echt. Ga er dus niet van uit dat er een levering zal plaatsvinden na het afronden van een bestelling.</div>
-@if(products){
+@if(products && products.count > 0){
     <div class="flex flex-col gap-3">
         <div class="flex justify-between gap-3">
             <mat-paginator class="bg-white"
@@ -49,6 +49,8 @@
             }
         </mat-selection-list>
     </mat-menu>
+} @else {
+    <app-empty-state actionText="Verwijder filters" message="Er zijn geen producten gevonden met de geselecteerde filters" icon="filter_alt_off" (action)="resetFilters()" />
 }
 
 
