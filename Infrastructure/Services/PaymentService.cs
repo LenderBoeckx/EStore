@@ -6,14 +6,20 @@ using Stripe;
 
 namespace Infrastructure.Services;
 
-public class PaymentService(IConfiguration config, ICartService cartService, IUnitOfWork uow) : IPaymentService
+public class PaymentService : IPaymentService
 {
+    private readonly ICartService cartService;
+    private readonly IUnitOfWork uow;
+    public PaymentService(IConfiguration config, ICartService cartService, IUnitOfWork uow)
+    {
+        StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
+        this.cartService = cartService;
+        this.uow = uow;
+    }
     //functie om een payment intent aan te maken
     //valideren dat de inhoud van het winkelwagentje overeenstemt met de gegevens in de database (gebruikermanipulatie: eventueel prijs aangepast?)
     public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
     {
-        StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
-
         //wachten op de response van de get card functie in de cart service (winkelwagen zoeken in de database)
         var cart = await cartService.GetCardAsync(cartId) ?? throw new Exception("Winkelwagen is niet beschikbaar");
 
@@ -40,6 +46,19 @@ public class PaymentService(IConfiguration config, ICartService cartService, IUn
         await cartService.SetCardAsync(cart);
 
         return cart;
+    }
+
+    public async Task<string> RefundPayment(string paymentIntentId)
+    {
+        var refundOptions = new RefundCreateOptions
+        {
+            PaymentIntent = paymentIntentId
+        };
+
+        var refundService = new RefundService();
+        var result = await refundService.CreateAsync(refundOptions);
+
+        return result.Status;
     }
 
     private async Task CreateUpdatePaymentIntentAsync(ShoppingCart cart, long total)
@@ -135,4 +154,6 @@ public class PaymentService(IConfiguration config, ICartService cartService, IUn
         //als er geen leveringsmethode id in het winkelwagentje zit, dan null terugsturen
         return null;
     }
+
+    
 }

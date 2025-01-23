@@ -34,6 +34,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         //snackbar tonen onderaan het scherm bij een unauthorized error
         snackbar.error(err.error.title || err.error);
       }
+      if(err.status === 403){
+        //snackbar tonen onderaan het scherm bij een unauthorized error
+        snackbar.error('Forbidden');
+      }
       if(err.status === 404){
         //redirecten naar de not-found component
         router.navigateByUrl('/not-found');

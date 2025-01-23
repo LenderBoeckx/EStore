@@ -2,11 +2,8 @@ using System;
 
 namespace Core.Specifications;
 
-public class ProductSpecParams
+public class ProductSpecParams : PagingParams
 {
-    private const int MaxPageSize = 50;
-    public int PageIndex {get; set;} = 1;
-    private int _pageSize = 6;
     private List<string> _merken = [];
     private List<string> _types = [];
     private string? _search;
@@ -28,10 +25,7 @@ public class ProductSpecParams
             _types = value.SelectMany(x => x.Split(',', StringSplitOptions.RemoveEmptyEntries)).ToList();
         }
     }
-    public int PageSize{
-        get => _pageSize;
-        set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
-    }
+    
     public string Search
     {
         get => _search ?? "";

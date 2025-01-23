@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ builder.Services.AddSingleton<ICartService, CartService>();
 
 //services voorzien voor .NET Identity
 builder.Services.AddAuthorization();
-builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<StoreContext>();
+builder.Services.AddIdentityApiEndpoints<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<StoreContext>();
 
 //een service voorzien voor de meegegeven repositories zolang het http request geldt
 builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -79,8 +80,9 @@ try
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<StoreContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
     await context.Database.MigrateAsync();
-    await StoreContextSeed.SeedAsync(context);
+    await StoreContextSeed.SeedAsync(context, userManager);
 }
 catch(Exception ex)
 {

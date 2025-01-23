@@ -3,6 +3,7 @@ using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -31,6 +32,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return product;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost] //een product aanmaken in de database
     public async Task<ActionResult<Product>> CreateProduct(Product product){
         uow.Repository<Product>().Add(product);
@@ -43,6 +45,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return BadRequest("Het product kon niet aangemaakt worden.");
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")] //een product uit de database aanpassen
     public async Task<ActionResult> UpdateProduct(int id, Product product)
     {
@@ -57,6 +60,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return BadRequest("Er is een probleem met het aanpassen van het product.");
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")] //een product uit de database verwijderen
     public async Task<ActionResult> DeleteProduct(int id)
     {

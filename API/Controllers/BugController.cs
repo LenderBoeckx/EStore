@@ -47,4 +47,22 @@ public class BugController : BaseApiController
 
         return Ok("Hallo " + name + " met id: " + id);
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin-secret")]
+    public IActionResult GetAdminSecret()
+    {
+        var name = User.FindFirst(ClaimTypes.Name)?.Value;
+        var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        var roles = User.FindFirstValue(ClaimTypes.Role);
+
+        return Ok(new
+        {
+            name,
+            id,
+            isAdmin,
+            roles
+        });
+    }
 }
