@@ -1,9 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { Cart, CartItem } from '../../shared/models/cart';
+import { Cart, CartItem, Coupon } from '../../shared/models/cart';
 import { Product } from '../../shared/models/product';
-import { map } from 'rxjs';
+import { firstValueFrom, map, Observable, tap } from 'rxjs';
 import { DeliveryMethod } from '../../shared/models/deliveryMethod';
 
 @Injectable({
@@ -29,12 +29,21 @@ export class CartService {
     if(!cart) return null;
     const subtotaal = cart.items.reduce((som, item) => som + (item.prijs * item.hoeveelheid), 0);
     const verzending = delivery ? delivery.prijs : 0;
-    const korting = 0;
+    let korting = 0;
+
+    if(cart.coupon){
+      if(cart.coupon.amountOff){
+        korting = cart.coupon.amountOff / 100;
+        console.log(korting)
+      } else if(cart.coupon.percentOff){
+        korting = subtotaal * (cart.coupon.percentOff / 100);
+      }
+    }
     return {
       subtotaal,
       verzending,
       korting,
-      totaal: subtotaal + verzending - korting
+      totaal: subtotaal - korting + verzending
     }
   });
 
@@ -48,15 +57,22 @@ export class CartService {
     )
   }
 
+  //kortingscode valideren
+  applyDiscount(code: string) {
+    return this.http.get<Coupon>(this.baseUrl + 'coupon/' + code);
+  }
+
   //een winkelwagen aanmaken in de database
   setCart(cart: Cart){
-    return this.http.post<Cart>(this.baseUrl + 'cart', cart).subscribe({
-      next: cart => this.cart.set(cart)
-    });
+    return this.http.post<Cart>(this.baseUrl + 'cart', cart).pipe(
+      tap(cart => {
+        this.cart.set(cart)
+      })
+    );
   }
 
   //een item en hoeveelheid toevoegen aan een winkelwagen
-  addItemToCart(item: CartItem | Product, hoeveelheid = 1){
+  async addItemToCart(item: CartItem | Product, hoeveelheid = 1){
     const cart = this.cart() ?? this.createCart();
 
     if(this.isProduct(item)){
@@ -64,12 +80,12 @@ export class CartService {
     }
 
     cart.items = this.addOrUpdateItem(cart.items, item, hoeveelheid);
-    this.setCart(cart);
+    await firstValueFrom(this.setCart(cart));
   }
 
   //één bepaald item of hoeveelheid verwijderen van het winkelwagentje
   //als er geen producten meer overblijven (leeg winkelwagentje) dan wordt het gehele wagentje verwijderd uit Redis database en uit localStorage (this.deleteCart)
-  removeItemFromCart(productId: number, hoeveelheid = 1) {
+  async removeItemFromCart(productId: number, hoeveelheid = 1) {
     const cart = this.cart();
 
     if(!cart) return;
@@ -88,7 +104,7 @@ export class CartService {
         this.deleteCart();
       }
       else{
-        this.setCart(cart);
+        await firstValueFrom(this.setCart(cart));
       }
     }
   }

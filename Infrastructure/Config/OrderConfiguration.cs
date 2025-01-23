@@ -17,6 +17,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             o => (OrderStatus)Enum.Parse(typeof(OrderStatus), o)
         );
         builder.Property(x => x.Subtotaal).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.Korting).HasColumnType("decimal(18,2)");
         //als een order verwijderd wordt, dan worden ook de bijhorende order items verwijderd
         builder.HasMany(x => x.BestellingsItems).WithOne().OnDelete(DeleteBehavior.Cascade);
         builder.Property(x => x.BestellingsDatum).HasConversion(

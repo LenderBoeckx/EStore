@@ -12,6 +12,7 @@ export interface Order {
     bestellingsStatus: string;
     totaal: number;
     betalingsIntentId: string;
+    korting?: number;
   }
   
   export interface LeveringsAdres {
@@ -44,5 +45,6 @@ export interface Order {
     leveringsMethodeId: number;
     leveringsAdres: LeveringsAdres;
     betalingsOverzicht: BetalingsOverzicht;
+    korting?: number;
   }
   

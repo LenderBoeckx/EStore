@@ -33,15 +33,21 @@
     </div>
 
     <div class="space-y-4 rounded-lg border border-gray-200 bg-white shadow-sm">
-        <form class="space-y-2 flex flex-col p-2">
+        <form #form="ngForm" (ngSubmit)="applyCouponCode()" class="space-y-2 flex flex-col p-2">
             <label class="mb-2 block text-sm font-medium">
                 Heeft u een kortingscode?
             </label>
+            <div *ngIf="cartService.cart()?.coupon as coupon" class="flex justify-between">
+                <span class="text-sm font-semibold">{{coupon.name}} applied</span>
+                <button (click)="removeCouponCode()" mat-icon-button>
+                    <mat-icon color="warn">delete</mat-icon>
+                </button>
+            </div>
             <mat-form-field appearance="outline">
                 <mat-label>Kortingscode</mat-label>
-                <input type="text" matInput>
+                <input type="text" name="code" matInput [(ngModel)]="code">
             </mat-form-field>
-            <button mat-flat-button>Code inwisselen</button>
+            <button mat-flat-button [disabled]="!!cartService.cart()?.coupon" type="submit">Code inwisselen</button>
         </form>
     </div>
 </div>

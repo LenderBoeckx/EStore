@@ -65,7 +65,8 @@ public class OrdersController(ICartService cartService, IUnitOfWork uow) : BaseA
             Subtotaal = items.Sum(x => x.Prijs * x.Hoeveelheid),
             BetalingsOverzicht = createOrderDto.BetalingsOverzicht,
             BetalingsIntentId = cart.PaymentIntentId,
-            KoperEmail = email
+            KoperEmail = email,
+            Korting = createOrderDto.Korting
         };
 
         //aangemaakt order naar de database sturen

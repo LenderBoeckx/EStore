@@ -18,4 +18,5 @@ public class OrderDto
     public required string BestellingsStatus {get; set;}
     public decimal Totaal {get; set;}
     public required string BetalingsIntentId {get; set;}
+    public decimal Korting {get; set;}
 }

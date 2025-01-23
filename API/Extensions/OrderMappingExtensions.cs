@@ -19,9 +19,11 @@ public static class OrderMappingExtensions
             LeveringsPrijs = order.LeveringsMethode.Prijs,
             BestellingsItems = order.BestellingsItems.Select(x => x.ToDto()).ToList(),
             Subtotaal = order.Subtotaal,
+            Korting = order.Korting,
             BestellingsStatus = order.BestellingsStatus.ToString(),
             BetalingsIntentId = order.BetalingsIntentId,
             Totaal = order.GetTotaal()
+            
         };
     }
 

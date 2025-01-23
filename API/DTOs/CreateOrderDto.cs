@@ -14,4 +14,5 @@ public class CreateOrderDto
     public ShippingAddress LeveringsAdres {get; set;} = null!;
     [Required]
     public PaymentSummary BetalingsOverzicht {get; set;} = null!;
+    public decimal Korting {get; set;}
 }

@@ -15,37 +15,36 @@ public class PaymentService(IConfiguration config, ICartService cartService, IUn
         StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
 
         //wachten op de response van de get card functie in de cart service (winkelwagen zoeken in de database)
-        var cart = await cartService.GetCardAsync(cartId);
+        var cart = await cartService.GetCardAsync(cartId) ?? throw new Exception("Winkelwagen is niet beschikbaar");
 
-        if(cart == null) return null;
+        //controleren of er al een leveringsprijs gekozen is, anders wordt de waarde 0 gebruikt
+        var leveringsPrijs = await GetShippingPriceAsync(cart) ?? 0;
 
-        //leveringsprijs op 0 zetten, 'm' om mee te geven dat het een decimal type is
-        var leveringsPrijs = 0m;
+        await ValidateCartItemsInCartAsync(cart);
 
-        //controleren of het winkelwagentje een leveringsmethode id heeft
-        if(cart.DeliveryMethodId.HasValue)
+        //subtotaal berekenen (alle items in winkelwagen * hoeveelheid per item)
+        var subtotal = CalculateSubtotal(cart);
+
+        //controleren of er een kortingsbon van toepassing is
+        if (cart.Coupon != null)
         {
-            //leveringsmethode ophalen aan de hand van het leveringsmethode id van het cart object
-            var deliveryMethod = await uow.Repository<DeliveryMethod>().GetByIdAsync((int)cart.DeliveryMethodId);
-            
-            if(deliveryMethod == null) return null;
-
-            leveringsPrijs = deliveryMethod.Prijs;
+            subtotal = await ApplyDiscountAsync(cart.Coupon, subtotal);
         }
 
-        //voor elk item in het winkelwagentje controleren of de prijs overeenkomt met de prijs van het product in de database
-        foreach(var item in cart.Items){
-            var productItem = await uow.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId);
+        //totale prijs berekenen
+        var total = subtotal + leveringsPrijs;
 
-            if(productItem == null) return null;
+        //payment intent voor stripe aanmaken of updaten bij een bestaand intent
+        await CreateUpdatePaymentIntentAsync(cart, total);
 
-            if(item.Prijs != productItem.Prijs){
-                item.Prijs = productItem.Prijs;
-            }
-        }
+        await cartService.SetCardAsync(cart);
 
+        return cart;
+    }
+
+    private async Task CreateUpdatePaymentIntentAsync(ShoppingCart cart, long total)
+    {
         var service = new PaymentIntentService();
-        PaymentIntent? intent = null;
 
         //controleren dat de payment intent id in het winkelwagen object null of leeg is
         if(string.IsNullOrEmpty(cart.PaymentIntentId))
@@ -53,13 +52,13 @@ public class PaymentService(IConfiguration config, ICartService cartService, IUn
             //nieuw payment intent object aanmaken
             var options = new PaymentIntentCreateOptions
             {
-                Amount = (long)cart.Items.Sum(x => x.Hoeveelheid * (x.Prijs * 100)) + (long)leveringsPrijs * 100,
+                Amount = total,
                 Currency = "eur",
                 PaymentMethodTypes = ["card"]
             };
 
             //aangemaakt paymentintent laten creëren door de payment intent service
-            intent = await service.CreateAsync(options);
+            var intent = await service.CreateAsync(options);
             cart.PaymentIntentId = intent.Id;
             cart.ClientSecret = intent.ClientSecret;
         }
@@ -69,14 +68,71 @@ public class PaymentService(IConfiguration config, ICartService cartService, IUn
             //payment intent object aanpassen
             var options = new PaymentIntentUpdateOptions
             {
-                Amount = (long)cart.Items.Sum(x => x.Hoeveelheid * (x.Prijs * 100)) + (long)leveringsPrijs * 100
+                Amount = total
             };
             //aangepast paymentintent laten updaten door de payment intent service
-            intent = await service.UpdateAsync(cart.PaymentIntentId, options);
+            await service.UpdateAsync(cart.PaymentIntentId, options);
+        }
+    }
+
+    //functie om de korting te berekenen op het subtotaal
+    private async Task<long> ApplyDiscountAsync(AppCoupon appCoupon, long subtotal)
+    {
+        var couponService = new Stripe.CouponService();
+
+        var coupon = await couponService.GetAsync(appCoupon.CouponId);
+
+        if(coupon.AmountOff.HasValue)
+        {
+            subtotal -= (long)coupon.AmountOff.Value;
+        }
+        if(coupon.PercentOff.HasValue)
+        {
+            var discount = subtotal * (coupon.PercentOff.Value / 100);
+            subtotal -= (long)discount;
+        }
+        
+        return subtotal;
+    }
+
+    //functie om het subtotaal te berekenen
+    private long CalculateSubtotal(ShoppingCart cart)
+    {
+        var subtotal = cart.Items.Sum(x => x.Hoeveelheid * (x.Prijs * 100));
+
+        //subtotaal terugsturen
+        return (long)subtotal;
+    }
+
+    //functie om de items in het winkelwagentje te controleren
+    private async Task ValidateCartItemsInCartAsync(ShoppingCart cart)
+    {
+        //voor elk item in het winkelwagentje controleren of de prijs overeenkomt met de prijs van het product in de database
+        foreach(var item in cart.Items){
+            var productItem = await uow.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId);
+
+            if(productItem == null) throw new Exception("Product niet gevonden.");
+
+            if(item.Prijs != productItem.Prijs){
+                item.Prijs = productItem.Prijs;
+            }
+        }
+    }
+
+    private async Task<long?> GetShippingPriceAsync(ShoppingCart cart)
+    {
+        //controleren of het winkelwagentje een leveringsmethode id heeft
+        if(cart.DeliveryMethodId.HasValue)
+        {
+            //leveringsmethode ophalen aan de hand van het leveringsmethode id van het cart object
+            var deliveryMethod = await uow.Repository<DeliveryMethod>().GetByIdAsync((int)cart.DeliveryMethodId);
+            
+            if(deliveryMethod == null) throw new Exception("Geen leveringsmethode gevonden.");
+
+            return (long)deliveryMethod.Prijs * 100;
         }
 
-        await cartService.SetCardAsync(cart);
-
-        return cart;
+        //als er geen leveringsmethode id in het winkelwagentje zit, dan null terugsturen
+        return null;
     }
 }

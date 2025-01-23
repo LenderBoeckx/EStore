@@ -86,12 +86,16 @@ export class StripeService {
   //winkelwagen aanpassen en ophalen, deze functie geeft de gewijzigde winkelwagen terug
   createOrUpdatePaymentItent() {
     const cart = this.cartService.cart();
+    const hasClientSecret = !!cart?.clientSecret;
 
     if(!cart) throw new Error('Probleem met winkelwagentje.');
 
     return this.http.post<Cart>(this.baseUrl + 'payment/' + cart.id, {}).pipe(
-      map(cart => {
-        this.cartService.setCart(cart);
+      map(async cart => {
+        if(!hasClientSecret) {
+          await firstValueFrom(this.cartService.setCart(cart));
+          return cart;
+        }
         return cart;
       })
     );

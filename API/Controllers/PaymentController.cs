@@ -22,9 +22,9 @@ public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, 
     {
         var cart = await paymentService.CreateOrUpdatePaymentIntent(cartId);
 
-    if(cart == null) return BadRequest("Probleem met uw winkelmandje.");
+        if(cart == null) return BadRequest("Probleem met uw winkelmandje.");
 
-    return Ok(cart);
+        return Ok(cart);
     }
 
     [HttpGet("delivery-methods")]
@@ -73,8 +73,10 @@ public class PaymentController(IPaymentService paymentService, IUnitOfWork uow, 
             //order ophalen uit de database aan de hand van het meegegeven id
             var order = await uow.Repository<Core.Entities.OrderAggregate.Order>().GetEntityWithSpec(spec) ?? throw new Exception("Bestelling niet gevonden.");
 
+            var orderTotalInCents = (long)Math.Round(order.GetTotaal() * 100, MidpointRounding.AwayFromZero);
+
             //controleren of het bedrag van het afgewerkt order hetzelfde is als het bedrag dat Stripe terug geeft
-            if((long)order.GetTotaal() * 100 != intent.Amount)
+            if(orderTotalInCents != intent.Amount)
             {
                 order.BestellingsStatus = OrderStatus.PaymentMismatch;
             }

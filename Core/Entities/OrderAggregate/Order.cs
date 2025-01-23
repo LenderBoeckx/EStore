@@ -13,10 +13,11 @@ public class Order : BaseEntity
     public decimal Subtotaal {get; set;}
     public OrderStatus BestellingsStatus {get; set;} = OrderStatus.Pending;
     public required string BetalingsIntentId {get; set;}
+    public decimal Korting {get; set;}
 
     public decimal GetTotaal()
     {
-        return Subtotaal + LeveringsMethode.Prijs;
+         return Subtotaal - Korting + LeveringsMethode.Prijs;
     }
 
 }

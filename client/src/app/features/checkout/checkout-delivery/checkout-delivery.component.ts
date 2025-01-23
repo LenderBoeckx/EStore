@@ -4,6 +4,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../../core/services/cart.service';
 import { DeliveryMethod } from '../../../shared/models/deliveryMethod';
+import { firstValueFrom } from 'rxjs';
 
 
 @Component({
@@ -37,7 +38,7 @@ export class CheckoutDeliveryComponent implements OnInit {
   }
 
   //als de leveringsmethode aangepast is moet ook de winkelwagen aangepast worden met de geselecteerde levering
-  updateDeliveryMethod(method: DeliveryMethod){
+  async updateDeliveryMethod(method: DeliveryMethod){
     //de geselecteerde leveringsmethode defineëren in de cart service met een set functie voor de selectedDelivery signal
     this.cartService.selectedDelivery.set(method);
     //winkelwagen zoeken in de cart service
@@ -46,7 +47,7 @@ export class CheckoutDeliveryComponent implements OnInit {
     //als de winkelwagen gevonden is, de leveringsmethode aanpassen in de winkelwagen
     if(cart) {
       cart.deliveryMethodId = method.id;
-      this.cartService.setCart(cart);
+      await firstValueFrom(this.cartService.setCart(cart));
       this.deliveryComplete.emit(true);
     }
   }

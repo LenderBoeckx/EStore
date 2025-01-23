@@ -51,6 +51,9 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 //een service voorzien voor SignalR
 builder.Services.AddSignalR();
 
+//een service voorzien voor de Coupon
+builder.Services.AddScoped<ICouponService, CouponService>();
+
 
 var app = builder.Build();
 
