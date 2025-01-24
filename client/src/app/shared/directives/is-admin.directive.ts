@@ -12,6 +12,9 @@ export class IsAdminDirective {
 
   constructor() {
     effect(() => {
+      //een directive voorzien om te kijken of een gebruiker ook admin is
+      //als deze gebruiker admin is dan wordt er een view getoond met een link naar een admin gedeelte
+      //bij een customer wordt deze link verborgen
       if(this.accountService.isAdmin()) {
         this.viewContainerRef.createEmbeddedView(this.templateRef);
       } else {
