@@ -42,6 +42,9 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config => {
 //een service voorzien om data weg te schrijven of op te halen vanuit de Redis database tijdens de volledige levensduur van het project
 builder.Services.AddSingleton<ICartService, CartService>();
 
+//een service voorzien om data op te halen of weg te schrijven naar de Redis database 1 voor cache gegevens
+builder.Services.AddSingleton<IResponseCahceService, ResponseCacheService>();
+
 //services voorzien voor .NET Identity
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<StoreContext>();

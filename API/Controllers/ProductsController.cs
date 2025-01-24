@@ -13,7 +13,7 @@ namespace API.Controllers;
 
 public class ProductsController(IUnitOfWork uow) : BaseApiController
 {
-
+    [Cache(600)]
     [HttpGet] //een lijst van alle producten ophalen die binnen de ingegeven pagination vallen
     public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery]ProductSpecParams specParams)
     {
@@ -22,6 +22,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return await CreatepagedResult(uow.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
     }
 
+    [Cache(600)]
     [HttpGet("{id:int}")] //specifiek product zoeken op basis van id
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
@@ -32,6 +33,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return product;
     }
 
+    [InvalidateCache("api/producs|")]
     [Authorize(Roles = "Admin")]
     [HttpPost] //een product aanmaken in de database
     public async Task<ActionResult<Product>> CreateProduct(Product product){
@@ -45,6 +47,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return BadRequest("Het product kon niet aangemaakt worden.");
     }
 
+    [InvalidateCache("api/producs|")]
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")] //een product uit de database aanpassen
     public async Task<ActionResult> UpdateProduct(int id, Product product)
@@ -60,6 +63,7 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return BadRequest("Er is een probleem met het aanpassen van het product.");
     }
 
+    [InvalidateCache("api/producs|")]
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")] //een product uit de database verwijderen
     public async Task<ActionResult> DeleteProduct(int id)
@@ -77,16 +81,16 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return BadRequest("Het product kon niet verwijderd worden.");
     }
 
-    //filteren op de ingegeven merken
-    [HttpGet("merken")]
+    [Cache(10000)]
+    [HttpGet("merken")] //filteren op de ingegeven merken
     public async Task<ActionResult<IReadOnlyList<string>>> GetMerken()
     {
         var spec = new MerkenLijstSpecification();
         return Ok(await uow.Repository<Product>().ListAsync(spec));
     }
 
-    //filteren op de ingegeven types
-    [HttpGet("types")]
+    [Cache(10000)]
+    [HttpGet("types")] //filteren op de ingegeven types
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
     {
         var spec = new TypeLijstSpecification();
@@ -94,8 +98,8 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
         return Ok(await uow.Repository<Product>().ListAsync(spec));
     }
 
-    //filteren op de ingegeven prijzen
-    [HttpGet("prijzen")]
+    [Cache(10000)]
+    [HttpGet("prijzen")] //filteren op de ingegeven prijzen
     public async Task<ActionResult<IReadOnlyList<string>>> GetPrijzen()
     {
         var spec = new PrijzenLijstSpecification();
