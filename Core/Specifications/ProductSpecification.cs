@@ -21,6 +21,9 @@ public class ProductSpecification : BaseSpecification<Product>
             case "prijsDesc":
                 AddOrderByDesc(x => x.Prijs);
                 break;
+            case "id":
+                AddOrderBy(x => x.Id);
+                break;
             default:
                 AddOrderBy(x => x.Naam);
                 break;

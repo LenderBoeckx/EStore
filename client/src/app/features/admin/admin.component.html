@@ -5,7 +5,7 @@
                 <h2 class="text-2xl font-semibold">Bestellingen</h2>
                 <mat-form-field appearance="outline" class="mt-2">
                     <mat-label>Filter op status</mat-label>
-                    <mat-select (selectionChange)="onFilterSelect($event)">
+                    <mat-select (selectionChange)="onOrderFilterSelect($event)">
                         @for (status of statusOptions; track $index) {
                             <mat-option [value]="status">{{status}}</mat-option>
                         }
@@ -14,7 +14,7 @@
             </div>
             <div class="p-4">
                 <div class="mat-elevation-z8">
-                    <table mat-table [dataSource]="dataSource">
+                    <table mat-table [dataSource]="dataSourceOrders">
                   
                       <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef> Nummer </th>
@@ -48,7 +48,7 @@
                                 <button matTooltip="View" [disabled]="order.bestellingsStatus === 'Refunded'" mat-icon-button routerLink="/orders/{{order.id}}">
                                     <mat-icon color="accent">visibility</mat-icon>
                                 </button>
-                                <button matTooltip="Refund" mat-icon-button (click)="openConfirmDialog(order.id)">
+                                <button matTooltip="Refund" mat-icon-button (click)="openDeleteOrderDialog(order.id)">
                                     <mat-icon color="warn">undo</mat-icon>
                                 </button>
                             </div>
@@ -60,19 +60,80 @@
                     </table>
                   
                     <mat-paginator [pageSizeOptions]="[5, 10, 20]"
-                                    [length]="totalItems"
+                                    [length]="totalOrders"
                                     [pageSize]="orderParams.pageSize"
-                                    (page)="onPageChange($event)"
+                                    (page)="onPageChange($event, 'Orders')"
                                    showFirstLastButtons>
                     </mat-paginator>
                   </div>
                   
             </div>
         </mat-tab>
-        <mat-tab label="Catalog">
-            Catalogus placeholder
+        <mat-tab label="Producten">
+          <div class="flex justify-between items-center mt-2 max-w-screen-2xl mx-auto">
+            <h2 class="text-2xl font-semibold">Producten</h2>
+              <button class="match-input-height" mat-stroked-button (click)="openFiltersDialog()">
+                <mat-icon>filter_list</mat-icon>
+                Filters
+            </button>
+        </div>
+        <div class="p-4">
+            <div class="mat-elevation-z8">
+                <table mat-table [dataSource]="dataSourceProducten">
+              
+                  <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef> Nummer </th>
+                    <td mat-cell *matCellDef="let product"> {{product.id}} </td>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="koperEmail">
+                    <th mat-header-cell *matHeaderCellDef> Naam </th>
+                    <td mat-cell *matCellDef="let product"> {{product.naam}} </td>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="bestellingsDatum">
+                    <th mat-header-cell *matHeaderCellDef> Merk </th>
+                    <td mat-cell *matCellDef="let product"> {{product.merk}} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="totaal">
+                    <th mat-header-cell *matHeaderCellDef> Type </th>
+                    <td mat-cell *matCellDef="let product"> {{product.type}} </td>
+                  </ng-container>
+              
+                  <ng-container matColumnDef="bestellingsStatus">
+                    <th mat-header-cell *matHeaderCellDef> Prijs </th>
+                    <td mat-cell *matCellDef="let product"> {{product.prijs | currency}} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef> Actie </th>
+                    <td mat-cell *matCellDef="let product">
+                        <div class="flex gap-2">
+                            <button matTooltip="Update" mat-icon-button>
+                                <mat-icon color="accent">edit</mat-icon>
+                            </button>
+                            <button matTooltip="Delete" mat-icon-button (click)="openDeleteProductDialog(product.id)">
+                                <mat-icon color="warn">delete</mat-icon>
+                            </button>
+                        </div>
+                    </td>
+                  </ng-container>
+                  
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              
+                <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                                [length]="totalProducts"
+                                [pageSize]="shopParams.pageSize"
+                                (page)="onPageChange($event, 'Producten')"
+                               showFirstLastButtons>
+                </mat-paginator>
+              </div>      
+        </div>
         </mat-tab>
-        <mat-tab label="Customer service">
+        <mat-tab label="Gebruikers">
             Customer service placeholder
         </mat-tab>
     </mat-tab-group>

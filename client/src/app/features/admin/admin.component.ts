@@ -12,6 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink } from '@angular/router';
 import { DialogService } from '../../core/services/dialog.service';
+import { ShopService } from '../../core/services/shop.service';
+import { ShopParams } from '../../shared/models/shopParams';
+import { Product } from '../../shared/models/product';
+import { MatDialog } from '@angular/material/dialog';
+import { FiltersDialogComponent } from '../shop/filters-dialog/filters-dialog.component';
 
 @Component({
   selector: 'app-admin',
@@ -34,58 +39,141 @@ import { DialogService } from '../../core/services/dialog.service';
 })
 export class AdminComponent implements OnInit {
   displayedColumns: string[] = ['id', 'koperEmail', 'bestellingsDatum', 'totaal', 'bestellingsStatus', 'action'];
-  dataSource = new MatTableDataSource<Order>([]);
+  dataSourceOrders = new MatTableDataSource<Order>([]);
+  dataSourceProducten = new MatTableDataSource<Product>([]);
   private adminService = inject(AdminService);
   private dialogService = inject(DialogService);
+  productService = inject(ShopService);
+  private dialogServiceProducts = inject(MatDialog);
   orderParams = new OrderParams();
-  totalItems = 0;
+  shopParams = new ShopParams();
+  totalOrders = 0;
+  totalProducts = 0;
   statusOptions = ['All', 'PaymentReceived', 'PaymentMismatch', 'Refunded', 'Pending'];
 
   //bij het initialiseren van de component dienen de orders geladen te worden
   ngOnInit(): void {
     this.loadOrders();
+    this.loadProducts();
+    this.productService.getMerken();
+    this.productService.getTypes();
   }
+
 
   //de adminservice de opdracht geven om de bepaalde bestellingen op te halen die voldoen aan de meegegeven criteria
   loadOrders() {
     this.adminService.getOrders(this.orderParams).subscribe({
       next: response => {
         if(response.data) {
-          this.dataSource.data = response.data;
-          this.totalItems = response.count;
+          this.dataSourceOrders.data = response.data;
+          this.totalOrders = response.count;
         }
       }
-    })
+    });
   }
 
-  //als de pagina in de table veranderd dan moeten de bijhorende bestellingen opgehaald worden
-  onPageChange(event: PageEvent) {
-    this.orderParams.pageNumber = event.pageIndex + 1;
-    this.orderParams.pageSize = event.pageSize;
-    this.loadOrders();
+  //de productservice (shop) de opdracht geven om de bepaalde bestellingen op te halen die voldoen aan de meegegeven criteria
+  loadProducts() {
+    this.shopParams.sort = 'id';
+    this.productService.getProducts(this.shopParams).subscribe({
+      next: response => {
+        if(response.data) {
+          this.dataSourceProducten.data = response.data;
+          this.totalProducts = response.count;
+        }
+      }
+    });
   }
 
   //als de filter veranderd dan moeten ook de orders opgehaald worden die bij de gegeven filter horen
-  onFilterSelect(event: MatSelectChange) {
+  onOrderFilterSelect(event: MatSelectChange) {
     this.orderParams.filter = event.value;
     this.orderParams.pageNumber = 1;
     this.loadOrders();
   }
 
-  async openConfirmDialog(id: number) {
+  //als de pagina in de table veranderd dan moeten de bijhorende bestellingen opgehaald worden
+  onPageChange(event: PageEvent, tab: string) {
+      if(tab === "Orders") {
+        this.orderParams.pageNumber = event.pageIndex + 1;
+        this.orderParams.pageSize = event.pageSize;
+        this.loadOrders();
+      }
+      
+    if(tab === "Producten") {
+        this.shopParams.pageNumber = event.pageIndex + 1;
+        this.shopParams.pageSize = event.pageSize;
+        this.loadProducts();
+    }
+      
+  }
+  //dialoog doorgeven welke tekst er moet doorgegeven worden aan de delete dialoog bij order verwijderen
+  openDeleteOrderDialog(id: number){
+    const titel = 'Bevestig terugbetaling';
+    const text = 'Bent u zeker dat uw dit bedrag wil terugbetalen? Dit kan niet ongedaan gemaakt worden.';
+
+    this.openConfirmDialog(id, titel, text, 'order');
+  }
+  //dialoog doorgeven welke tekst er moet doorgegeven worden aan de delete dialoog bij product verwijderen
+  openDeleteProductDialog(id: number) {
+    const titel = 'Bevestig productverwijdering';
+    const text = 'Bent u zeker dat u dit product wil verwijderen uit de database?';
+
+    this.openConfirmDialog(id, titel, text, 'product');
+  }
+  
+  //dialoog openen bij het klikken op verwijderen
+  async openConfirmDialog(id: number, titel: string, text: string, type: string) {
     const confirmed = await this.dialogService.confirm(
-      'Bevestig terugbetaling',
-      'Bent u zeker dat uw dit bedrag wil terugbetalen? Dit kan niet ongedaan gemaakt worden.'
+      titel,
+      text
     );
 
-    if(confirmed) this.refundOrder(id);
+    if(type === 'order' && confirmed) this.refundOrder(id);
+
+    if(type === 'product' && confirmed) {
+      this.productService.deleteProduct(id).subscribe({
+        next: () => {
+          this.loadProducts();
+        }
+      });
+    } 
   }
 
   refundOrder(id: number) {
     this.adminService.refundOrder(id).subscribe({
       next: order => {
-        this.dataSource.data = this.dataSource.data.map(o => o.id === id ? order : o)
+        this.dataSourceOrders.data = this.dataSourceOrders.data.map(o => o.id === id ? order : o)
       }
     });
   }
+
+  //functie getriggerd door een klik event op de knop filters
+    openFiltersDialog(){
+      //dialog van material openen met de opties om merken en/of types te filteren
+      const dialogRef = this.dialogServiceProducts.open(FiltersDialogComponent, {
+        minWidth: '500px',
+        data: {
+          selectedMerken: this.shopParams.merken,
+          selectedTypes: this.shopParams.types
+        }
+      });
+  
+      //na het sluiten van de dialog, de gekozen merken en types (result.) toevoegen aan de string arrays selectedMerken en selectedTypes
+      dialogRef.afterClosed().subscribe({
+        next: result => {
+          if (result){
+            this.shopParams.merken = result.selectedMerken;
+            this.shopParams.types = result.selectedTypes;
+            this.shopParams.pageNumber = 1;
+            this.loadProducts();
+          }
+        }
+      });
+    }
+  
+    resetFilters() {
+      this.shopParams = new ShopParams();
+      this.loadProducts();
+    }
 }

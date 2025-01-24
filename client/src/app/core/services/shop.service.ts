@@ -59,4 +59,9 @@ export class ShopService {
       next: response => this.types = response
     });
   }
+
+  //een product verwijderen uit de database
+  deleteProduct(id: number) {
+    return this.http.delete<void>(this.baseUrl + 'products/' + id);
+  }
 }
