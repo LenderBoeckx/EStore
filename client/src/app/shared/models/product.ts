@@ -8,3 +8,5 @@ export interface Product {
     merk: string;
     hoeveelheidInVoorraad: number;
 }
+
+export type NewProduct = Omit<Product, 'id'>;

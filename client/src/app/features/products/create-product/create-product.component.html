@@ -1,0 +1,49 @@
+<mat-card class="max-w-3xl mx-auto mt-16 p-8 rounded-lg border bg-white border-gray-400 shadow-md">
+    <div class="flex justify-end gap-4 mx-2">
+        <button routerLink="/shop">
+            <mat-icon matBadgeSize="large" class="mt-2">close</mat-icon>
+        </button>
+    </div>
+    <div class="flex">
+        <h1 class="text-3xl font-semibold mx-auto">Nieuw product</h1>
+    </div>
+    <mat-divider class="w-3/4 mx-auto my-6"></mat-divider>
+    <div>
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+            <div class="flex">
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Naam" formControlName="naam" />
+                </div>
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Prijs" formControlName="prijs" />
+                </div>
+            </div>
+            <div class="flex">
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Merk" formControlName="merk" />
+                </div>
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Type" formControlName="type" />
+                </div>
+            </div>
+            <div class="flex">
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Foto" formControlName="fotoURL" />
+                </div>
+                <div class="w-1/2 mx-4">
+                    <app-text-input label="Aantal voorraad" formControlName="hoeveelheidInVoorraad" />
+                </div>
+            </div>
+            <div class="flex">
+                <mat-form-field appearance="outline" class="w-full mx-4">
+                    <mat-label>Beschrijving</mat-label>
+                    <textarea formControlName="beschrijving" class="w-full" matInput></textarea>
+                </mat-form-field>
+            </div>
+            
+            <div class="flex mx-auto">
+                <button [disabled]="productForm.invalid" mat-flat-button type="submit" class="mx-auto py-2">Aanmaken</button>
+            </div>    
+        </form>
+    </div>
+</mat-card>

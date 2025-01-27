@@ -17,6 +17,7 @@ import { ShopParams } from '../../shared/models/shopParams';
 import { Product } from '../../shared/models/product';
 import { MatDialog } from '@angular/material/dialog';
 import { FiltersDialogComponent } from '../shop/filters-dialog/filters-dialog.component';
+import { ProductService } from '../../core/services/product.service';
 
 @Component({
   selector: 'app-admin',
@@ -43,8 +44,9 @@ export class AdminComponent implements OnInit {
   dataSourceProducten = new MatTableDataSource<Product>([]);
   private adminService = inject(AdminService);
   private dialogService = inject(DialogService);
-  productService = inject(ShopService);
+  shopService = inject(ShopService);
   private dialogServiceProducts = inject(MatDialog);
+  private productService = inject(ProductService);
   orderParams = new OrderParams();
   shopParams = new ShopParams();
   totalOrders = 0;
@@ -55,8 +57,8 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrders();
     this.loadProducts();
-    this.productService.getMerken();
-    this.productService.getTypes();
+    this.shopService.getMerken();
+    this.shopService.getTypes();
   }
 
 
@@ -75,7 +77,7 @@ export class AdminComponent implements OnInit {
   //de productservice (shop) de opdracht geven om de bepaalde bestellingen op te halen die voldoen aan de meegegeven criteria
   loadProducts() {
     this.shopParams.sort = 'id';
-    this.productService.getProducts(this.shopParams).subscribe({
+    this.shopService.getProducts(this.shopParams).subscribe({
       next: response => {
         if(response.data) {
           this.dataSourceProducten.data = response.data;
