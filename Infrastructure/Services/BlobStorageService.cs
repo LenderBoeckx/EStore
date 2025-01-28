@@ -11,7 +11,7 @@ public class BlobStorageService
 
     public BlobStorageService(IConfiguration configuration)
     {
-        var connectionString = configuration["AzureBlobStorage:ConnectionString"];
+        var connectionString = configuration.GetConnectionString("AzureBlobStorageConnectionString") ?? configuration["AzureBlobStorage:AzureBlobStorageConnectionString"];
         _containerName = configuration["AzureBlobStorage:ContainerName"]!;
 
         if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(_containerName))
