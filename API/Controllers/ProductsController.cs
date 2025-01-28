@@ -46,7 +46,7 @@ public class ProductsController(IUnitOfWork uow, UploadHandler imageHandler) : B
             Merk = productDto.Merk,
             Type = productDto.Type,
             HoeveelheidInVoorraad = productDto.HoeveelheidInVoorraad,
-            FotoURL = productDto.Image.FileName
+            FotoURL = "/images/products/" + productDto.Image.FileName
         };
 
         uow.Repository<Product>().Add(product);
