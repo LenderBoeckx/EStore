@@ -7,7 +7,7 @@ namespace Infrastructure.Services;
 public class BlobStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly string _containerName;
+    //private readonly string _containerName;
 
     public BlobStorageService(IConfiguration configuration)
     {
@@ -18,7 +18,7 @@ public class BlobStorageService
             throw new ArgumentException("De verbinding is niet juist geconfigureerd");
         }
 
-        _containerName = configuration["AzureBlobStorage:ContainerName"] ?? throw new Exception("De containernaam is niet juist geconfigureerd");
+        //_containerName = configuration["AzureBlobStorage:ContainerName"] ?? throw new Exception("De containernaam is niet juist geconfigureerd");
 
         
 
@@ -28,7 +28,7 @@ public class BlobStorageService
     // Methode om bestand naar Blob Storage te uploaden
     public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient("products");
         var blobClient = containerClient.GetBlobClient(fileName);
 
         if (await blobClient.ExistsAsync())
