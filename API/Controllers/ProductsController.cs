@@ -4,6 +4,7 @@ using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class ProductsController(IUnitOfWork uow, UploadHandler imageHandler) : BaseApiController
+public class ProductsController(IUnitOfWork uow, BlobStorageService _storageService) : BaseApiController
 {
     [Cache(600)]
     [HttpGet] //een lijst van alle producten ophalen die binnen de ingegeven pagination vallen
@@ -37,7 +38,39 @@ public class ProductsController(IUnitOfWork uow, UploadHandler imageHandler) : B
     [InvalidateCache("api/products|")]
     [Authorize(Roles = "Admin")]
     [HttpPost] //een product aanmaken in de database
-    public async Task<ActionResult<Product>> CreateProduct(CreateProductDTO productDto){
+    public async Task<ActionResult<Product>> CreateProduct(CreateProductDTO productDto)
+    {
+        List<string> extentions = new List<string>() { ".jpg", ".jpeg", ".png" };
+
+        if (productDto.Image != null)
+        {
+            string extention = Path.GetExtension(productDto.Image.FileName).ToLower();
+            long size = productDto.Image.Length;
+
+            if(!extentions.Contains(extention))
+            {
+                return BadRequest("Het bestand is niet voorzien van de juiste bestandsextentie.");
+            }
+            if(size > (5 * 1024 * 1024)) 
+            {
+                return BadRequest("Het bestand is te groot. De maximale bestandsgrootte is 5MB.");
+            }
+
+            using (var stream = productDto.Image.OpenReadStream())
+            {
+                // Upload het bestand naar Blob Storage
+                var imageUrl = await _storageService.UploadFileAsync(stream, productDto.Image.FileName);
+
+                // Sla de URL op in productDto
+                productDto.FotoURL = imageUrl;
+            }
+        }
+
+        if(string.IsNullOrEmpty(productDto.FotoURL) || productDto.FotoURL == "Er is al een afbeelding met dezelfde naam in de opslag.")
+        {    
+            return BadRequest("Er is al een bestand met deze naam in de database.");
+        }
+
         var product = new Product
         {
             Naam = productDto.Naam,
@@ -46,24 +79,19 @@ public class ProductsController(IUnitOfWork uow, UploadHandler imageHandler) : B
             Merk = productDto.Merk,
             Type = productDto.Type,
             HoeveelheidInVoorraad = productDto.HoeveelheidInVoorraad,
-            FotoURL = "/images/products/" + productDto.Image.FileName
+            FotoURL = productDto.FotoURL,
+  
         };
+        
 
         uow.Repository<Product>().Add(product);
 
-        var imageRespone =  Ok(await imageHandler.Upload(productDto.Image));
-        
-       if(imageRespone.Value!.ToString() == productDto.Image.FileName)
-       {
             if(await uow.Complete())
             {
                 return CreatedAtAction("GetProduct", new {id = product.Id}, product);
             }
         
             return BadRequest("Het product kon niet aangemaakt worden.");
-       } 
-
-        return BadRequest(imageRespone.Value.ToString());
     }
 
     [InvalidateCache("api/products|")]

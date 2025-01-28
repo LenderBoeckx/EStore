@@ -9,7 +9,7 @@
                 </div>
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Prijs:</p>
-                    <p>{{product.prijs}}</p>
+                    <p>{{product.prijs | currency}}</p>
                 </div>
             </div>
             <div class="flex p-4">
@@ -25,11 +25,11 @@
             <div class="flex p-4">
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Foto:</p>
-                    <p>{{product.fotoURL}}</p>
+                    <img class="w-9" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
                 </div>
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Hoeveelheid in voorraad:</p>
-                    <p>{{product.hoeveelheidInVoorraad}}</p>
+                    <p>{{product.hoeveelheidInVoorraad}} stuks</p>
                 </div>
             </div>
             <div class="flex p-4">

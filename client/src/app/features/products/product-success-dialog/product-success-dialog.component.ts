@@ -7,6 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { Product } from '../../../shared/models/product';
 import { Router } from '@angular/router';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-product-success-dialog',
@@ -17,7 +18,8 @@ import { Router } from '@angular/router';
         MatListModule,
         MatButton,
         FormsModule,
-        MatDividerModule
+        MatDividerModule,
+        CurrencyPipe
   ],
   templateUrl: './product-success-dialog.component.html',
   styleUrl: './product-success-dialog.component.scss'

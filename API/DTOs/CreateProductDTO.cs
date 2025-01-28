@@ -25,4 +25,6 @@ public class CreateProductDTO
     
     [Required(ErrorMessage = "Er is geen bestand bijgevoegd.")]
     public required IFormFile Image { get; set; }
+
+    public string? FotoURL {get; set;}
 }

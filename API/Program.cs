@@ -59,7 +59,8 @@ builder.Services.AddSignalR();
 //een service voorzien voor de Coupon
 builder.Services.AddScoped<ICouponService, CouponService>();
 
-builder.Services.AddScoped<UploadHandler>();
+//een service voor blob storage voorzien (opslaan van nieuwe afbeeldingen van producten)
+builder.Services.AddSingleton<BlobStorageService>();
 
 
 var app = builder.Build();
