@@ -65,4 +65,9 @@ public class ProductRepository(StoreContext context) : IProductRepository
     {
         context.Entry(product).State = EntityState.Modified;
     }
+
+    public async Task<IReadOnlyList<string>> GetAfbeeldingenAsync()
+    {
+        return await context.Products.Select(x => x.FotoURL).Distinct().ToListAsync();
+    }
 }

@@ -28,7 +28,8 @@
             </div>
             <div class="flex">
                 <div class="w-1/2 mx-4">
-                    <app-text-input label="Foto" formControlName="fotoURL" />
+                    <label>Foto</label>
+                    <input type="file" (change)="onSelectedFileChange($event)">
                 </div>
                 <div class="w-1/2 mx-4">
                     <app-text-input label="Aantal voorraad" formControlName="hoeveelheidInVoorraad" />

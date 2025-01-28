@@ -14,9 +14,6 @@ public class CreateProductDTO
     [Range(0.01, double.MaxValue, ErrorMessage = "De ingevoerde prijs moet hoger dan 0 zijn.")]
     public decimal Prijs {get; set;}
 
-    [Required(ErrorMessage = "Er moet een foto url ingevuld zijn.")]
-    public string FotoURL {get; set;} = string.Empty;
-
     [Required(ErrorMessage = "Het veld type moet ingevuld zijn.")]
     public string Type {get; set;} = string.Empty;
 
@@ -25,4 +22,7 @@ public class CreateProductDTO
 
     [Range(0, int.MaxValue, ErrorMessage = "De hoeveelheid in voorraad moet minstens 0 zijn.")]
     public int HoeveelheidInVoorraad {get; set;}
+    
+    [Required(ErrorMessage = "Er is geen bestand bijgevoegd.")]
+    public required IFormFile Image { get; set; }
 }

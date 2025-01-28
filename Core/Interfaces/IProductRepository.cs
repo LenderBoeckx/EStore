@@ -9,6 +9,7 @@ public interface IProductRepository
     Task<Product?> GetProductByIdAsync(int id);
     Task<IReadOnlyList<string>> GetMerkenAsync();
     Task<IReadOnlyList<string>> GetTypesAsync();
+    Task<IReadOnlyList<string>> GetAfbeeldingenAsync();
     void AddProduct(Product product);
     void UpdateProduct(Product product);
     void DeleteProduct(Product product);

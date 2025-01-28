@@ -1,4 +1,5 @@
 using System;
+using API.DTOs;
 using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
@@ -11,7 +12,7 @@ namespace API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class ProductsController(IUnitOfWork uow) : BaseApiController
+public class ProductsController(IUnitOfWork uow, UploadHandler imageHandler) : BaseApiController
 {
     [Cache(600)]
     [HttpGet] //een lijst van alle producten ophalen die binnen de ingegeven pagination vallen
@@ -36,15 +37,33 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
     [InvalidateCache("api/products|")]
     [Authorize(Roles = "Admin")]
     [HttpPost] //een product aanmaken in de database
-    public async Task<ActionResult<Product>> CreateProduct(Product product){
+    public async Task<ActionResult<Product>> CreateProduct(CreateProductDTO productDto){
+        var product = new Product
+        {
+            Naam = productDto.Naam,
+            Beschrijving = productDto.Beschrijving,
+            Prijs = productDto.Prijs,
+            Merk = productDto.Merk,
+            Type = productDto.Type,
+            HoeveelheidInVoorraad = productDto.HoeveelheidInVoorraad,
+            FotoURL = productDto.Image.FileName
+        };
+
         uow.Repository<Product>().Add(product);
+
+        var imageRespone =  Ok(await imageHandler.Upload(productDto.Image));
         
-       if(await uow.Complete())
+       if(imageRespone.Value!.ToString() == productDto.Image.FileName)
        {
-        return CreatedAtAction("GetProduct", new {id = product.Id}, product);
+            if(await uow.Complete())
+            {
+                return CreatedAtAction("GetProduct", new {id = product.Id}, product);
+            }
+        
+            return BadRequest("Het product kon niet aangemaakt worden.");
        } 
 
-        return BadRequest("Het product kon niet aangemaakt worden.");
+        return BadRequest(imageRespone.Value.ToString());
     }
 
     [InvalidateCache("api/products|")]
@@ -103,6 +122,14 @@ public class ProductsController(IUnitOfWork uow) : BaseApiController
     public async Task<ActionResult<IReadOnlyList<string>>> GetPrijzen()
     {
         var spec = new PrijzenLijstSpecification();
+
+        return Ok(await uow.Repository<Product>().ListAsync(spec));
+    }
+
+    [HttpGet("afbeeldingen")] //filteren op de ingegeven prijzen
+    public async Task<ActionResult<IReadOnlyList<string>>> GetAfbeeldingen()
+    {
+        var spec = new AfbeeldingenSpecification();
 
         return Ok(await uow.Repository<Product>().ListAsync(spec));
     }

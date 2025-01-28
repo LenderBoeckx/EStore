@@ -44,7 +44,7 @@ export class CreateProductComponent {
     prijs: FormControl<number>;
     merk: FormControl<string>;
     type: FormControl<string>;
-    fotoURL: FormControl<string>;
+    image: FormControl<File | null>;
     hoeveelheidInVoorraad: FormControl<number>;
     beschrijving: FormControl<string>;
   }>({
@@ -52,19 +52,40 @@ export class CreateProductComponent {
     prijs: this.fb.control(0.00, { nonNullable: true, validators: Validators.required }),
     merk: this.fb.control('', { nonNullable: true, validators: Validators.required }),
     type: this.fb.control('', { nonNullable: true, validators: Validators.required }),
-    fotoURL: this.fb.control('', { nonNullable: true, validators: Validators.required }),
+    image: this.fb.control(null, { validators: Validators.required }),
     hoeveelheidInVoorraad: this.fb.control(0, { nonNullable: true, validators: Validators.required }),
     beschrijving: this.fb.control('', { nonNullable: true, validators: Validators.required }),
   });
 
   onSubmit() {
-    this.productService.createProduct(this.productForm.value).subscribe({
-      next: newProduct => {
-        this.createdProduct = newProduct;
-        this.openSuccessDialog();
-      },
-      error: errors => this.validationErrors = errors
-    })
+    if (this.productForm.valid) {
+      const formData = new FormData();
+
+      const values = this.productForm.value;
+
+      formData.append('naam', values.naam ?? '');
+      if(values.prijs){
+        formData.append('prijs', values.prijs?.toString());
+      }
+      formData.append('merk', values.merk ?? '');
+      formData.append('type', values.type ?? '');
+      if(values.hoeveelheidInVoorraad) {
+        formData.append('hoeveelheidInVoorraad', values.hoeveelheidInVoorraad.toString() ?? '0');
+      } 
+      formData.append('beschrijving', values.beschrijving ?? '');
+
+      if(values.image) {
+        formData.append('image', values.image);
+      }
+
+      this.productService.createProduct(formData).subscribe({
+        next: newProduct => {
+          this.createdProduct = newProduct;
+          this.openSuccessDialog();
+        },
+        error: errors => this.validationErrors = errors
+      })
+   }
   }
 
   openSuccessDialog() {
@@ -74,6 +95,15 @@ export class CreateProductComponent {
         product: this.createdProduct
       }
     });
+  }
+
+  onSelectedFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+  if (input.files && input.files.length > 0) {
+    const file = input.files[0];
+    this.productForm.patchValue({ image: file });
+  }
   }
 
 }

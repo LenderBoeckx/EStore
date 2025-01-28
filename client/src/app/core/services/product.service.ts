@@ -11,7 +11,7 @@ export class ProductService {
   private baseUrl = environment.apiUrl;
 
   //een product toevoegen in de database
-  createProduct(product: Partial<NewProduct>) {
+  createProduct(product: FormData) {
     return this.http.post<Product>(this.baseUrl + 'products/', product);
   }
   //een product verwijderen uit de database

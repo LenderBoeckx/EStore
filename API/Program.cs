@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using API.Middleware;
+using API.RequestHelpers;
 using API.SignalR;
 using Core.Entities;
 using Core.Interfaces;
@@ -57,6 +58,8 @@ builder.Services.AddSignalR();
 
 //een service voorzien voor de Coupon
 builder.Services.AddScoped<ICouponService, CouponService>();
+
+builder.Services.AddScoped<UploadHandler>();
 
 
 var app = builder.Build();
