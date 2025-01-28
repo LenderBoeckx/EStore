@@ -12,12 +12,15 @@ public class BlobStorageService
     public BlobStorageService(IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("AzureBlobStorageConnectionString") ?? configuration["AzureBlobStorage:AzureBlobStorageConnectionString"];
-        _containerName = configuration["AzureBlobStorage:ContainerName"] ?? throw new Exception("De containernaam is niet juist geconfigureerd");
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new ArgumentException("De verbinding of containernaam is niet juist geconfigureerd");
+            throw new ArgumentException("De verbinding is niet juist geconfigureerd");
         }
+
+        _containerName = configuration["AzureBlobStorage:ContainerName"] ?? throw new Exception("De containernaam is niet juist geconfigureerd");
+
+        
 
         _blobServiceClient = new BlobServiceClient(connectionString);
     }
