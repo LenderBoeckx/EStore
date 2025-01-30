@@ -119,13 +119,23 @@ public class ProductsController(IUnitOfWork uow, BlobStorageService _storageServ
 
         if(product == null) return NotFound();
 
-        uow.Repository<Product>().Remove(product);
+        string path = product.FotoURL;
+        string fileName = path.Split('/').Last();
 
-        if(await uow.Complete()){
-            return NoContent();
+        var deleted = await _storageService.DeleteFileAsync(fileName);
+
+        if(deleted)
+        {
+            uow.Repository<Product>().Remove(product);
+
+            if(await uow.Complete()){
+                return NoContent();
+            }
+
+            return BadRequest("Het product kon niet verwijderd worden.");
         }
 
-        return BadRequest("Het product kon niet verwijderd worden.");
+        return BadRequest("De afbeelding van het product kon niet verwijderd worden.");
     }
 
     [Cache(10000)]
