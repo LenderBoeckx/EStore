@@ -110,7 +110,7 @@
                     <th mat-header-cell *matHeaderCellDef> Actie </th>
                     <td mat-cell *matCellDef="let product">
                         <div class="flex gap-2">
-                            <button matTooltip="Update" mat-icon-button>
+                            <button matTooltip="Update" mat-icon-button routerLink="/products/update-product/{{product.id}}">
                                 <mat-icon color="accent">edit</mat-icon>
                             </button>
                             <button matTooltip="Delete" mat-icon-button (click)="openDeleteProductDialog(product.id)">

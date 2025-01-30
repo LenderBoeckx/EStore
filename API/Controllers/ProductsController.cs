@@ -40,30 +40,16 @@ public class ProductsController(IUnitOfWork uow, BlobStorageService _storageServ
     [HttpPost] //een product aanmaken in de database
     public async Task<ActionResult<Product>> CreateProduct(CreateProductDTO productDto)
     {
-        List<string> extentions = new List<string>() { ".jpg", ".jpeg", ".png" };
-
         if (productDto.Image != null)
         {
-            string extention = Path.GetExtension(productDto.Image.FileName).ToLower();
-            long size = productDto.Image.Length;
-
-            if(!extentions.Contains(extention))
+            // Sla de URL op in productDto
+            var result = await AddFoto(productDto.Image);
+            if (result.Result is BadRequestObjectResult badRequest)
             {
-                return BadRequest("Het bestand is niet voorzien van de juiste bestandsextentie.");
-            }
-            if(size > (5 * 1024 * 1024)) 
-            {
-                return BadRequest("Het bestand is te groot. De maximale bestandsgrootte is 5MB.");
+                return BadRequest(badRequest.Value);
             }
 
-            using (var stream = productDto.Image.OpenReadStream())
-            {
-                // Upload het bestand naar Blob Storage
-                var imageUrl = await _storageService.UploadFileAsync(stream, productDto.Image.FileName);
-
-                // Sla de URL op in productDto
-                productDto.FotoURL = imageUrl;
-            }
+            productDto.FotoURL = result.Value;
         }
 
         if(string.IsNullOrEmpty(productDto.FotoURL) || productDto.FotoURL == "Er is al een afbeelding met dezelfde naam in de opslag.")
@@ -97,14 +83,45 @@ public class ProductsController(IUnitOfWork uow, BlobStorageService _storageServ
     [InvalidateCache("api/products|")]
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")] //een product uit de database aanpassen
-    public async Task<ActionResult> UpdateProduct(int id, Product product)
+    public async Task<ActionResult> UpdateProduct(int id, UpdateProductDto productDto)
     {
-        if(product.Id != id || !ProductExists(id)) return BadRequest("Dit product kan niet aangepast worden.");
+        if(productDto.Id != id || !ProductExists(id)) return BadRequest("Dit product kan niet aangepast worden.");
+
+        var product = await uow.Repository<Product>().GetByIdAsync(id);
+        if (product == null) return NotFound("Product niet gevonden.");
+
+        if (productDto.Image != null)
+        {
+            // Sla de URL op in productDto
+            var result = await AddFoto(productDto.Image);
+            if (result.Result is BadRequestObjectResult badRequest)
+            {
+                return BadRequest(badRequest.Value);
+            }
+            
+            //oude foto verwijderen
+            await DeleteFoto(product.FotoURL);
+
+            productDto.FotoURL = result.Value!;
+        }
+
+        if(productDto.FotoURL == "Er is al een afbeelding met dezelfde naam in de opslag.")
+        {    
+            return BadRequest("Er is al een bestand met deze naam in de database.");
+        }
+
+        product.Naam = productDto.Naam;
+        product.Beschrijving = productDto.Beschrijving;
+        product.Prijs = productDto.Prijs;
+        product.Merk = productDto.Merk;
+        product.Type = productDto.Type;
+        product.HoeveelheidInVoorraad = productDto.HoeveelheidInVoorraad;
+        product.FotoURL = productDto.FotoURL;
 
         uow.Repository<Product>().Update(product);
 
         if(await uow.Complete()){
-            return NoContent();
+            return Ok(product);
         }
 
         return BadRequest("Er is een probleem met het aanpassen van het product.");
@@ -119,10 +136,7 @@ public class ProductsController(IUnitOfWork uow, BlobStorageService _storageServ
 
         if(product == null) return NotFound();
 
-        string path = product.FotoURL;
-        string fileName = path.Split('/').Last();
-
-        var deleted = await _storageService.DeleteFileAsync(fileName);
+        var deleted = await DeleteFoto(product.FotoURL);
 
         if(deleted)
         {
@@ -136,6 +150,45 @@ public class ProductsController(IUnitOfWork uow, BlobStorageService _storageServ
         }
 
         return BadRequest("De afbeelding van het product kon niet verwijderd worden.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<bool> DeleteFoto(string fotoUrl) {
+        string path = fotoUrl;
+        string fileName = path.Split('/').Last();
+
+        var deleted = await _storageService.DeleteFileAsync(fileName);
+
+        return deleted;
+    }
+
+    [Authorize(Roles ="Admin")]
+    public async Task<ActionResult<string>> AddFoto(IFormFile image)
+    {
+        List<string> extentions = new List<string>() { ".jpg", ".jpeg", ".png" };
+        string extention = Path.GetExtension(image.FileName).ToLower();
+        long size = image.Length;
+        string url;
+
+        if(!extentions.Contains(extention))
+        {
+            return BadRequest("Het bestand is niet voorzien van de juiste bestandsextentie.");
+        }
+        if(size > (5 * 1024 * 1024)) 
+        {
+            return BadRequest("Het bestand is te groot. De maximale bestandsgrootte is 5MB.");
+        }
+
+        using (var stream = image.OpenReadStream())
+        {
+            // Upload het bestand naar Blob Storage
+            var imageUrl = await _storageService.UploadFileAsync(stream, image.FileName);
+
+            // Sla de URL op in productDto
+            url = imageUrl;
+        }
+
+        return url;
     }
 
     [Cache(10000)]

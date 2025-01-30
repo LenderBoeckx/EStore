@@ -18,4 +18,8 @@ export class ProductService {
   deleteProduct(id: number) {
     return this.http.delete<void>(this.baseUrl + 'products/' + id);
   }
+  //een product aanpassen in de database
+  updateProduct(product: FormData, id: number) {
+    return this.http.put<Product>(this.baseUrl + 'products/' + id, product);
+  }
 }

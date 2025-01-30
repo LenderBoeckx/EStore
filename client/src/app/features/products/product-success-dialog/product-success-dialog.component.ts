@@ -29,6 +29,7 @@ export class ProductSuccessDialogComponent {
   private dialogRef = inject(MatDialogRef<ProductSuccessDialogComponent>);
   product: Product = this.data.product;
   private router = inject(Router);
+  titel: string = this.data.titel;
   
 
   closeDialog() {

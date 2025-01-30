@@ -1,41 +1,41 @@
 <div class="p-10">
-    <h1 class="text-3xl text-center pt-6 mb-3">U heeft volgend product aangemaakt.</h1>
+    <h1 class="text-3xl text-center pt-6 mb-3">{{titel}}</h1>
     <mat-divider class="my-6"></mat-divider>
     <div>
             <div class="flex p-4">
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Naam:</p>
-                    <p>{{product.naam}}</p>
+                    <p class="mt-2">{{product.naam}}</p>
                 </div>
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Prijs:</p>
-                    <p>{{product.prijs | currency}}</p>
+                    <p class="mt-2">{{product.prijs | currency}}</p>
                 </div>
             </div>
             <div class="flex p-4">
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Merk</p>
-                    <p>{{product.merk}}</p>
+                    <p class="mt-2">{{product.merk}}</p>
                 </div>
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Type</p>
-                    <p>{{product.type}}</p>
+                    <p class="mt-2">{{product.type}}</p>
                 </div>
             </div>
             <div class="flex p-4">
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Foto:</p>
-                    <img class="w-9" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
+                    <img class="w-12" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
                 </div>
                 <div class="w-1/2 mx-4">
                     <p class="font-semibold">Hoeveelheid in voorraad:</p>
-                    <p>{{product.hoeveelheidInVoorraad}} stuks</p>
+                    <p class="mt-2">{{product.hoeveelheidInVoorraad}} stuks</p>
                 </div>
             </div>
             <div class="flex p-4">
                 <div class="mx-4">
                     <p class="font-semibold">Beschrijving:</p>
-                    <p>{{product.beschrijving}}</p>
+                    <p class="mt-2">{{product.beschrijving}}</p>
                 </div>
             </div>
             
