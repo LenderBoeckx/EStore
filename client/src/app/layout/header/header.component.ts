@@ -10,6 +10,7 @@ import { AccountService } from '../../core/services/account.service';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatDivider } from '@angular/material/divider';
 import { IsAdminDirective } from '../../shared/directives/is-admin.directive';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +26,8 @@ import { IsAdminDirective } from '../../shared/directives/is-admin.directive';
     MatMenuTrigger,
     MatMenuItem,
     MatDivider,
-    IsAdminDirective
+    IsAdminDirective,
+    CommonModule
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
@@ -35,14 +37,20 @@ export class HeaderComponent {
   cartService = inject(CartService);
   accountService = inject(AccountService);
   private router = inject(Router);
+  isMenuOpen = false;
 
   logout(){
     this.accountService.logout().subscribe({
       next: () => {
         this.accountService.currentUser.set(null);
+        this.isMenuOpen = false;
         this.router.navigateByUrl('/');
       }
     })
+  }
+
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
   }
 
 }

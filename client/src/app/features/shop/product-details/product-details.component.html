@@ -1,35 +1,35 @@
-<div class="pl-20">
+<div class="pl-4 md:pl-20">
     <a>
-        <button mat-stroked-button (click)="goBack()">
-            <mat-icon class="mx-auto">arrow_back</mat-icon>
+        <button mat-stroked-button (click)="goBack()" class="flex items-center">
+            <mat-icon>arrow_back</mat-icon>
         </button>
     </a>
 </div>
 @if(product){
-    <section class="py-8">
+    <section class="py-4 md:py-8">
         <div class="max-w-screen-2xl px-4 mx-auto">
-            <div class="grid grid-cols-2 gap-8">
-                <div class="max-w-xl mx-auto">
-                    <img class="w-full" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                <div class="flex justify-center">
+                    <img class="w-full max-w-xs sm:max-w-sm md:max-w-xl rounded-lg" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
                 </div>
-                <div class="text-2xl font-semibold text-gray-900">
-                    <h1>{{product.naam}}</h1>
-                    <p>U heeft {{quantityInCart}} stuk(s) van dit product in uw winkelmandje</p>
-                    <div class="mt-4 items-center gap-4 flex">
-                        <p class="text-3xl font-extrabold text-gray-900">{{product.prijs | currency}}</p>
+                <div class="text-lg md:text-2xl font-semibold text-gray-900">
+                    <h1 class="text-xl md:text-3xl">{{product.naam}}</h1>
+                    <p class="mt-2">U heeft {{quantityInCart}} stuk(s) van dit product in uw winkelmandje</p>
+                    <div class="mt-4 flex items-center gap-2 md:gap-4">
+                        <p class="text-2xl md:text-3xl font-extrabold text-gray-900">{{product.prijs | currency}}</p>
                     </div>
-                    <div class="flex gap-4 mt-6">
-                        <button [disabled]="quantity === quantityInCart" (click)="updateCart()" class="match-input-height" mat-flat-button>
+                    <div class="flex flex-col sm:flex-row gap-2 md:gap-4 mt-6">
+                        <button [disabled]="quantity === quantityInCart" (click)="updateCart()" class="w-full sm:w-auto match-input-height" mat-flat-button>
                             <mat-icon>shopping_cart</mat-icon>
                             {{getButtonText()}}
                         </button>
-                        <mat-form-field appearance="outline" class="flex">
+                        <mat-form-field appearance="outline" class="w-full sm:w-auto">
                             <mat-label>Hoeveelheid</mat-label>
                             <input matInput type="number" min="0" [(ngModel)]="quantity">
                         </mat-form-field>
                     </div>
-                    <mat-divider></mat-divider>
-                    <p class="mt-6 text-gray-500 text-lg">{{product.beschrijving}}</p>
+                    <mat-divider class="my-4"></mat-divider>
+                    <p class="mt-4 text-gray-500 text-base md:text-lg">{{product.beschrijving}}</p>
                 </div>
             </div>
         </div>
