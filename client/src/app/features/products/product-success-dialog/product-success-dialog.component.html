@@ -1,46 +1,44 @@
-<div class="p-10">
+<div class="p-6 sm:p-10">
     <h1 class="text-3xl text-center pt-6 mb-3">{{titel}}</h1>
     <mat-divider class="my-6"></mat-divider>
     <div>
-            <div class="flex p-4">
-                <div class="w-1/2 mx-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                <div>
                     <p class="font-semibold">Naam:</p>
                     <p class="mt-2">{{product.naam}}</p>
                 </div>
-                <div class="w-1/2 mx-4">
+                <div>
                     <p class="font-semibold">Prijs:</p>
                     <p class="mt-2">{{product.prijs | currency}}</p>
                 </div>
             </div>
-            <div class="flex p-4">
-                <div class="w-1/2 mx-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                <div>
                     <p class="font-semibold">Merk</p>
                     <p class="mt-2">{{product.merk}}</p>
                 </div>
-                <div class="w-1/2 mx-4">
+                <div>
                     <p class="font-semibold">Type</p>
                     <p class="mt-2">{{product.type}}</p>
                 </div>
             </div>
-            <div class="flex p-4">
-                <div class="w-1/2 mx-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                <div>
                     <p class="font-semibold">Foto:</p>
-                    <img class="w-12" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
+                    <img class="w-24 h-24 object-cover rounded-md" src="{{product.fotoURL}}" alt="foto van {{product.naam}}">
                 </div>
-                <div class="w-1/2 mx-4">
+                <div>
                     <p class="font-semibold">Hoeveelheid in voorraad:</p>
                     <p class="mt-2">{{product.hoeveelheidInVoorraad}} stuks</p>
                 </div>
             </div>
-            <div class="flex p-4">
-                <div class="mx-4">
-                    <p class="font-semibold">Beschrijving:</p>
-                    <p class="mt-2">{{product.beschrijving}}</p>
-                </div>
+            <div class="p-4">
+                <p class="font-semibold">Beschrijving:</p>
+                <p class="mt-2">{{product.beschrijving}}</p>
             </div>
             
-            <div class="flex mx-auto pt-3">
-                <button  mat-flat-button class="mx-auto py-4" (click)="closeDialog()">Sluiten</button>
+            <div class="flex justify-center pt-3">
+                <button  mat-flat-button class="py-2 px-6" (click)="closeDialog()">Sluiten</button>
             </div>    
     </div>
 </div>

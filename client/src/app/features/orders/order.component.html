@@ -1,23 +1,23 @@
-<div class="mx-auto mt-32">
-    <h2 class="font-demibold text-2xl mb-6 text-center">Mijn bestellingen</h2>
+<div class="mx-auto mt-32 px-4">
+    <h2 class="font-semibold text-2xl mb-6 text-center">Mijn bestellingen</h2>
     <div class="flex flex-col">
-        <div class="w-full">
+        <div class="w-full overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 cursor-pointer">
                 <thead class="bg-gray-50">
                     <tr class="uppercase text-gray-600 text-sm">
                         <th class="text-center px-6 py-3">Bestelling</th>
-                        <th class="text-left">Datum</th>
-                        <th class="text-left">Totaal</th>
-                        <th class="text-left">Status</th>
+                        <th class="text-left px-6 py-3">Datum</th>
+                        <th class="text-left px-6 py-3">Totaal</th>
+                        <th class="text-left px-6 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @for (order of orders; track order.id) {
                         <tr routerLink="/orders/{{order.id}}" class="hover:bg-gray-100">
                             <th class="px-6 py-3"># {{order.id}}</th>
-                            <td>{{order.bestellingsDatum | date: 'medium'}}</td>
-                            <td>{{order.totaal | currency}}</td>
-                            <td>{{order.bestellingsStatus}}</td>
+                            <td class="px-6 py-3">{{order.bestellingsDatum | date: 'medium'}}</td>
+                            <td class="px-6 py-3">{{order.totaal | currency}}</td>
+                            <td class="px-6 py-3">{{order.bestellingsStatus}}</td>
                         </tr>
                     }
                 </tbody>

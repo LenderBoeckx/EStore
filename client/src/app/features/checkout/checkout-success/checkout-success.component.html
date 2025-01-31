@@ -1,44 +1,52 @@
-<section *ngIf="signalRService.orderSignal() as order" class="bg-white py-16">
-    <div class="mx-auto max-w-2xl px-4">
-        <h2 class="font-semibold text-2xl mb-2">Danku voor jouw fake bestelling!</h2>
-        <p class="text-gray-500 mb-8">Uw bestelling <span class="font-medium">#{{order.id}}</span> Zal nooit verstuurd worden. Dit is een valse website. Wij zullen u niet op de hoogte stellen wat er wordt niets verstuurd.</p>
-        <div class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
-            <dl class="flex items-center justify-between gap-4">
+<section *ngIf="signalRService.orderSignal() as order" class="bg-white py-16 px-4 sm:px-6">
+    <div class="mx-auto max-w-2xl">
+        <h2 class="font-semibold text-2xl mb-2 text-center sm:text-left">Danku voor jouw fake bestelling!</h2>
+        <p class="text-gray-500 mb-8 text-center sm:text-left">Uw bestelling <span class="font-medium">#{{order.id}}</span> Zal nooit verstuurd worden. Dit is een valse website. Wij zullen u niet op de hoogte stellen wat er wordt niets verstuurd.</p>
+        <div class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex justify-between">
                 <dt class="font-normal text-gray-500">Datum</dt>
                 <dd class="font-medium text-gray-900 text-end">{{order.bestellingsDatum | date: 'mediumDate'}}</dd>
+            </div>
             </dl>
             <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Betalingswijze</dt>
-                <dd class="font-medium text-gray-900 text-end">{{order.betalingsOverzicht | payment}}</dd>
+                <div class="flex justify-between">
+                    <dt class="font-normal text-gray-500">Betalingswijze</dt>
+                    <dd class="font-medium text-gray-900 text-end">{{order.betalingsOverzicht | payment}}</dd>
+                </div>
             </dl>
             <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Leveringsadres</dt>
-                <dd class="font-medium text-gray-900 text-end">{{order.leverAddress | address}}</dd>
+                <div class="flex justify-between">
+                    <dt class="font-normal text-gray-500">Leveringsadres</dt>
+                    <dd class="font-medium text-gray-900 text-end">{{order.leverAddress | address}}</dd>
+                </div>
             </dl>
             <dl class="flex items-center justify-between gap-4">
-                <dt class="font-normal text-gray-500">Bedrag</dt>
-                <dd class="font-medium text-gray-900 text-end">{{order.totaal | currency}}</dd>
+                <div class="flex justify-between">
+                    <dt class="font-normal text-gray-500">Bedrag</dt>
+                    <dd class="font-medium text-gray-900 text-end">{{order.totaal | currency}}</dd>
+                </div>
             </dl>
         </div>
-        <div class="flex justify-around space-x-4">
-            <button routerLink="/orders/{{order.id}}" mat-flat-button>Bekijk uw bestelling</button>
-            <button routerLink="/shop" mat-stroked-button>Verder winkelen</button>
+        <div class="flex flex-col sm:flex-row justify-center sm:justify-around space-y-4 sm:space-y-0 sm:space-x-4">
+            <button routerLink="/orders/{{order.id}}" mat-flat-button class="w-full sm:w-auto">Bekijk uw bestelling</button>
+            <button routerLink="/shop" mat-stroked-button class="w-full sm:w-auto">Verder winkelen</button>
         </div>
     </div>
 </section>
 
-<section *ngIf="!signalRService.orderSignal()" class="bg-white py-16">
-    <div class="mx-auto max-w-2xl px-4">
-        <h2 class="font-semibold text-2xl mb-2">Bestelling wordt verwerkt...</h2>
-        <div class="space-y-2 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
-            <div class="flex flex-col justify-center items-center">
+<section *ngIf="!signalRService.orderSignal()" class="bg-white py-16 px-4 sm:px-6">
+    <div class="mx-auto max-w-2xl">
+        <h2 class="font-semibold text-2xl mb-2 text-center sm:text-left">Bestelling wordt verwerkt...</h2>
+        <div class="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-6 mb-8">
+            <div class="flex flex-col justify-center items-center text-center">
                 <mat-spinner diameter="30"></mat-spinner>
-                <p class="text-xl">Bestelling laden</p>
+                <p class="text-xl mt-2">Bestelling laden</p>
                 <span>Wij hebben uw betaling ontvangen. We maken uw bestelling nu klaar.</span>
             </div>
         </div>
-        <div class="flex justify-around space-x-4">
-            <button routerLink="/shop" mat-stroked-button>Verder winkelen</button>
+        <div class="flex justify-center">
+            <button routerLink="/shop" mat-stroked-button class="w-full sm:w-auto">Verder winkelen</button>
         </div>
     </div>
 </section>

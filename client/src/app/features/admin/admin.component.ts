@@ -152,9 +152,13 @@ export class AdminComponent implements OnInit {
 
   //functie getriggerd door een klik event op de knop filters
     openFiltersDialog(){
+      const minWidth = window.innerWidth < 640 ? '90vw' : '500px';
       //dialog van material openen met de opties om merken en/of types te filteren
       const dialogRef = this.dialogServiceProducts.open(FiltersDialogComponent, {
-        minWidth: '500px',
+        minWidth: minWidth,
+        maxWidth: '95vw',
+        maxHeight: '90vh',
+        panelClass: 'custom-dialog-container',
         data: {
           selectedMerken: this.shopParams.merken,
           selectedTypes: this.shopParams.types

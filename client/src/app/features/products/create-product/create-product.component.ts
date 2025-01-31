@@ -89,8 +89,12 @@ export class CreateProductComponent {
   }
 
   openSuccessDialog() {
-    const dialogRef = this.dialogService.open(ProductSuccessDialogComponent, {
-      minWidth: '500px',
+    const minWidth = window.innerWidth < 640 ? '90vw' : '500px';
+    this.dialogService.open(ProductSuccessDialogComponent, {
+      minWidth: minWidth,
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
       data: {
         product: this.createdProduct,
         titel: 'U heeft volgend product aangemaakt.'

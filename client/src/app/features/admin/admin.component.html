@@ -1,9 +1,9 @@
 <div class="min-h-screen">
     <mat-tab-group class="bg-white">
         <mat-tab label="Orders">
-            <div class="flex justify-between items-center mt-2 max-w-screen-2xl mx-auto">
-                <h2 class="text-2xl font-semibold">Bestellingen</h2>
-                <mat-form-field appearance="outline" class="mt-2">
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-4 max-w-screen-2xl mx-auto px-4">
+                <h2 class="text-2xl font-semibold text-center sm:text-left">Bestellingen</h2>
+                <mat-form-field appearance="outline" class="w-full sm:w-auto mt-2 sm:mt-0">
                     <mat-label>Filter op status</mat-label>
                     <mat-select (selectionChange)="onOrderFilterSelect($event)">
                         @for (status of statusOptions; track $index) {
@@ -12,9 +12,9 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="p-4">
+            <div class="p-4 overflow-x-auto">
                 <div class="mat-elevation-z8">
-                    <table mat-table [dataSource]="dataSourceOrders">
+                    <table mat-table [dataSource]="dataSourceOrders" class="min-w-full">
                   
                       <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef> Nummer </th>
@@ -44,7 +44,7 @@
                       <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef> Actie </th>
                         <td mat-cell *matCellDef="let order">
-                            <div class="flex gap-2">
+                            <div class="flex gap-2 justify-center sm:justify-start">
                                 <button matTooltip="View" [disabled]="order.bestellingsStatus === 'Refunded'" mat-icon-button routerLink="/orders/{{order.id}}">
                                     <mat-icon color="accent">visibility</mat-icon>
                                 </button>
@@ -70,16 +70,16 @@
             </div>
         </mat-tab>
         <mat-tab label="Producten">
-          <div class="flex justify-between items-center mt-2 max-w-screen-2xl mx-auto">
-            <h2 class="text-2xl font-semibold">Producten</h2>
-              <button class="match-input-height" mat-stroked-button (click)="openFiltersDialog()">
+          <div class="flex flex-col sm:flex-row justify-between items-center mt-4 max-w-screen-2xl mx-auto px-4">
+            <h2 class="text-2xl font-semibold text-center sm:text-left">Producten</h2>
+              <button class="match-input-height w-full sm:w-auto mt-2 sm:mt-0" mat-stroked-button (click)="openFiltersDialog()">
                 <mat-icon>filter_list</mat-icon>
                 Filters
             </button>
         </div>
-        <div class="p-4">
+        <div class="p-4 overflow-x-auto">
             <div class="mat-elevation-z8">
-                <table mat-table [dataSource]="dataSourceProducten">
+                <table mat-table [dataSource]="dataSourceProducten" class="min-w-full">
               
                   <ng-container matColumnDef="id">
                     <th mat-header-cell *matHeaderCellDef> Nummer </th>
@@ -109,7 +109,7 @@
                   <ng-container matColumnDef="action">
                     <th mat-header-cell *matHeaderCellDef> Actie </th>
                     <td mat-cell *matCellDef="let product">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 justify-center sm:justify-start">
                             <button matTooltip="Update" mat-icon-button routerLink="/products/update-product/{{product.id}}">
                                 <mat-icon color="accent">edit</mat-icon>
                             </button>
@@ -132,12 +132,12 @@
                 </mat-paginator>
               </div>      
         </div>
-        <div class="p-4">
+        <div class="p-4 flex justify-center">
           <button mat-stroked-button routerLink="/products/create-product">Nieuw product aanmaken</button>
         </div>
         </mat-tab>
         <mat-tab label="Gebruikers">
-            Customer service placeholder
+          <div class="p-4 text-center">Customer service placeholder</div>
         </mat-tab>
     </mat-tab-group>
 </div>

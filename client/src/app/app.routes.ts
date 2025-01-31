@@ -15,7 +15,6 @@ export const routes: Routes = [
     {path: 'checkout', loadChildren: () => import('./features/checkout/routes').then(routes => routes.checkoutRoutes)},
     {path: 'orders', loadChildren: () => import('./features/orders/routes').then(routes => routes.orderRoutes)},
     {path: 'account', loadChildren: () => import('./features/account/routes').then(routes => routes.accountRoutes)},
-    {path: 'test-error', loadChildren: () => import('./features/test-error/routes').then(routes => routes.errorRoutes)},
     {path: 'not-found', component: NotFoundComponent},
     {path: 'server-error', component: ServerErrorComponent},
     {path: 'admin', loadChildren: () => import('./features/admin/routes').then(routes => routes.adminRoutes)},
