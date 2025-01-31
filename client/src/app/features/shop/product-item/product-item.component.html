@@ -1,6 +1,6 @@
 @if(product){
     <mat-card appearance="raised" routerLink="/shop/{{product.id}}" class="product-card flex flex-col h-full min-h-[300px] p-4">
-        <img src="{{product.fotoURL}}" alt="een foto van {{product.naam}}" class="w-full h-48 object-cover rounded-lg">
+        <img src="{{product.fotoURL}}" alt="een foto van {{product.naam}}" class="w-full object-cover rounded-lg">
         <mat-card-content class="flex flex-col flex-grow mt-2">
             <h2 class="text-sm font-semibold uppercase">{{product.naam}}</h2>
             <p class="font-light flex-grow">{{product.prijs | currency}}</p>
